@@ -172,7 +172,7 @@ Integrate all three components into a complete end-to-end VLA system.
 **Skills Gained**:
 - Build a complete voice-controlled humanoid system
 - Test with multiple scenarios and edge cases
-- Optimize end-to-end latency (<3 seconds)
+- Optimize end-to-end latency (&lt;3 seconds)
 - Deploy and validate on real robots
 
 ---
@@ -252,7 +252,7 @@ By the end of Module 4, you'll have successfully:
 - ✅ Created LLM planning prompts that decompose tasks with >80% validity
 - ✅ Implemented ROS 2 action clients for multi-step execution
 - ✅ Completed a capstone project with >80% task success rate
-- ✅ Demonstrated end-to-end voice-to-action latency <3 seconds
+- ✅ Demonstrated end-to-end voice-to-action latency &lt;3 seconds
 - ✅ Handled at least 8 common failure scenarios gracefully
 - ✅ Documented all code examples with working, copy-paste ready scripts
 
