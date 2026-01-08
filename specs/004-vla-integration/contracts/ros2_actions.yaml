@@ -1,0 +1,422 @@
+# ROS 2 Action Execution Contract
+# Purpose: Define interface for task plan execution via ROS 2 actionlib
+# Target: Module 4 - Vision-Language-Action Integration
+
+---
+contract_name: "ROS 2 Action Execution"
+contract_version: "1.0"
+last_updated: "2026-01-08"
+middleware: "ROS 2 Humble/Jazzy"
+api_reference: "https://docs.ros.org/en/humble/Concepts/Intermediate/Understanding-ROS-2-actions.html"
+
+## Action Framework Overview
+
+### Core Concepts
+- **Action Server**: Executes long-running tasks (e.g., robot movement, grasping)
+- **Action Client**: Sends goals and monitors progress
+- **Goal**: Task to execute (e.g., navigate to location, grasp object)
+- **Feedback**: Real-time progress updates
+- **Result**: Final outcome after completion
+
+### VLA Integration Pattern
+```
+Voice Command (Whisper)
+    ↓
+Task Plan (GPT-4)
+    ↓
+Action Executor (ROS 2 actionlib)
+    ↓
+Robot Execution & Feedback (TTS)
+```
+
+## Action Definition (IDL Interface)
+
+### Example: Navigate Action
+```yaml
+# action/Navigate.action
+geometry_msgs/PoseStamped goal_pose
+float32 max_velocity
+---
+bool success
+geometry_msgs/Pose final_pose
+---
+geometry_msgs/Pose current_pose
+float32 distance_remaining
+float32 time_elapsed
+```
+
+### Example: Grasp Action
+```yaml
+# action/Grasp.action
+string object_id
+float32 grip_force_fraction  # 0.0 to 1.0
+float32 timeout
+---
+bool success
+string status_message
+float32 actual_grip_force
+---
+float32 finger_position
+float32 force_feedback
+string status
+```
+
+### Example: Execute Task Plan Action
+```yaml
+# action/ExecuteTaskPlan.action
+vla_msgs/TaskPlan task_plan
+float32 timeout
+---
+bool success
+int32 actions_completed
+string final_status
+---
+int32 current_action_id
+string current_action_name
+float32 progress_percentage
+string action_status
+```
+
+## Input Specification
+
+### Goal Message Format
+```python
+class NavigateGoal:
+    goal_pose: geometry_msgs.PoseStamped
+    max_velocity: float = 0.5  # m/s
+    timeout: float = 60.0  # seconds
+
+class GraspGoal:
+    object_id: str  # e.g., "blue_ball"
+    grip_force_fraction: float  # 0.0-1.0
+    timeout: float = 30.0
+
+class ExecuteTaskPlanGoal:
+    task_plan: TaskPlan  # From LLM planning
+    timeout: float = 300.0  # 5 minutes
+    safety_enabled: bool = True
+```
+
+### Goal Parameters
+parameters:
+  - name: "goal_pose"
+    type: "geometry_msgs/PoseStamped"
+    required: true
+    description: "Target location for navigation"
+
+  - name: "max_velocity"
+    type: "float32"
+    range: "[0.1, 1.5]"
+    unit: "m/s"
+    default: 0.5
+
+  - name: "timeout"
+    type: "float32"
+    range: "[5, 600]"
+    unit: "seconds"
+    default: 60.0
+
+  - name: "safety_enabled"
+    type: "bool"
+    default: true
+    description: "Enable collision detection and safety constraints"
+
+## Output Specification
+
+### Result Message Format
+```python
+class NavigateResult:
+    success: bool
+    final_pose: geometry_msgs.Pose
+    distance_traveled: float
+    time_elapsed: float
+    failure_reason: str = ""
+
+class GraspResult:
+    success: bool
+    object_grasped: bool
+    actual_grip_force: float
+    sensor_feedback: str
+    failure_reason: str = ""
+
+class ExecuteTaskPlanResult:
+    success: bool
+    actions_completed: int
+    total_actions: int
+    final_status: str
+    failures: list[ActionFailure]
+```
+
+### Feedback Message Format
+```python
+class NavigateFeedback:
+    current_pose: geometry_msgs.Pose
+    distance_remaining: float
+    time_elapsed: float
+    status: str  # "moving", "planning", "obstacle_avoidance"
+
+class GraspFeedback:
+    finger_position: float  # 0.0-1.0
+    force_feedback: float
+    status: str  # "closing", "adjusting", "holding"
+
+class ExecuteTaskPlanFeedback:
+    current_action_id: int
+    current_action_name: str
+    progress_percentage: float
+    estimated_time_remaining: float
+    action_status: str
+```
+
+## Performance Requirements
+
+### Latency Budget (Module 4 Target: <3s voice-to-action)
+timing:
+  action_server_initialization: "<100ms"
+  goal_transmission: "10-50ms"
+  goal_processing: "50-200ms"
+  execution: "1-10 seconds (depends on task)"
+  feedback_rate: "10-50Hz"
+  result_transmission: "10-50ms"
+  total_roundtrip: "<3 seconds for simple actions"
+
+### Throughput
+- Action queue: Support 10+ queued goals
+- Concurrent actions: Single-threaded executor (sequential execution)
+- Feedback frequency: 10-20Hz while executing
+
+### Reliability
+availability: "High (robot hardware dependent)"
+goal_success_rate: ">95% for nominal tasks"
+timeout_handling: "Graceful timeout with error message"
+preemption: "Support goal preemption (cancel + start new)"
+
+## Implementation Patterns
+
+### Action Server Setup (Python)
+```python
+import rclpy
+from rclpy.action import ActionServer
+from rclpy.executors import MultiThreadedExecutor
+
+class NavigateActionServer:
+    def __init__(self):
+        self.node = rclpy.create_node('navigate_action_server')
+        self._action_server = ActionServer(
+            self.node,
+            Navigate,
+            'navigate',
+            self.execute_callback,
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback
+        )
+        self.node.get_logger().info('Navigate action server started')
+
+    def goal_callback(self, goal_request):
+        if self.validate_goal(goal_request):
+            return rclpy.action.GoalResponse.ACCEPT
+        return rclpy.action.GoalResponse.REJECT
+
+    def cancel_callback(self, goal_handle):
+        return rclpy.action.CancelResponse.ACCEPT
+
+    def execute_callback(self, goal_handle):
+        feedback = Navigate.Feedback()
+        result = Navigate.Result()
+
+        try:
+            while not goal_handle.is_cancel_requested:
+                # Execute navigation step
+                current_pose = self.get_current_pose()
+                distance_remaining = self.compute_distance(
+                    current_pose,
+                    goal_handle.request.goal_pose
+                )
+
+                if distance_remaining < 0.05:
+                    break
+
+                # Publish feedback
+                feedback.current_pose = current_pose
+                feedback.distance_remaining = distance_remaining
+                goal_handle.publish_feedback(feedback)
+
+                time.sleep(0.1)  # 10Hz feedback rate
+
+            result.success = True
+            result.final_pose = self.get_current_pose()
+            goal_handle.succeed()
+
+        except Exception as e:
+            result.success = False
+            result.failure_reason = str(e)
+            goal_handle.abort()
+
+        return result
+```
+
+### Action Client (Task Executor)
+```python
+class TaskPlanExecutor:
+    def __init__(self):
+        self.node = rclpy.create_node('task_executor')
+        self.navigate_client = ActionClient(self.node, Navigate, 'navigate')
+        self.grasp_client = ActionClient(self.node, Grasp, 'grasp')
+
+    def execute_task_plan(self, task_plan):
+        results = []
+
+        for action in task_plan.action_sequence:
+            if action.action == "navigate":
+                result = self.execute_navigate(action)
+            elif action.action == "grasp":
+                result = self.execute_grasp(action)
+            # ... handle other actions
+
+            results.append(result)
+
+            if not result.success and not action.continue_on_failure:
+                break  # Stop on first failure
+
+        return results
+
+    def execute_navigate(self, action):
+        goal = Navigate.Goal()
+        goal.goal_pose = action.target_location
+        goal.max_velocity = action.max_velocity
+
+        future = self.navigate_client.send_goal_async(goal)
+        rclpy.spin_until_future_complete(self.node, future)
+
+        goal_handle = future.result()
+
+        # Monitor feedback
+        result_future = goal_handle.get_result_async()
+        rclpy.spin_until_future_complete(self.node, result_future)
+
+        return result_future.result()
+```
+
+### Feedback Handling (TTS Output)
+```python
+def feedback_callback(self, feedback_msg):
+    feedback = feedback_msg.feedback
+
+    # Update status
+    status = f"Progress: {feedback.progress_percentage:.1f}%"
+    print(status)
+
+    # Convert to speech
+    self.text_to_speech(status)
+
+    # Update UI or logging
+    self.log_feedback(feedback)
+```
+
+## Safety Mechanisms
+
+### Timeout Handling
+```python
+timeout_strategy:
+  hard_timeout: "30-60s depending on action type"
+  warning_threshold: "80% of timeout"
+  fallback_action: "Stop robot, report error, prompt user"
+  escalation: "Emergency stop if hardware fails"
+```
+
+### Collision Detection
+```python
+safety_checks:
+  - check_type: "obstacle_in_path"
+    threshold: "0.5m clearance"
+    action: "Pause and replan or abort"
+
+  - check_type: "human_proximity"
+    threshold: "0.5m safety zone"
+    action: "Graceful stop and alert"
+
+  - check_type: "gripper_overload"
+    threshold: "max_force 50N"
+    action: "Release and report failure"
+```
+
+### Preemption
+```python
+preemption_behavior:
+  cancel_request: "Stop current action, return to neutral pose"
+  graceful_stop: "No sudden movements"
+  interrupt_latency: "<100ms"
+  result: "Partial success with completed sub-actions count"
+```
+
+## Error Codes & Recovery
+
+### Standard Error Codes
+```python
+class ActionStatus:
+    SUCCESS = 0
+    TIMEOUT = 1
+    GOAL_PREEMPTED = 2
+    HARDWARE_FAILURE = 3
+    COLLISION_DETECTED = 4
+    INVALID_GOAL = 5
+    EXECUTION_ERROR = 6
+    SAFETY_VIOLATION = 7
+```
+
+### Recovery Strategies
+```python
+recovery_actions = {
+    ActionStatus.TIMEOUT: "Retry once, then fail",
+    ActionStatus.COLLISION_DETECTED: "Replan path and retry",
+    ActionStatus.HARDWARE_FAILURE: "Log error and escalate",
+    ActionStatus.INVALID_GOAL: "Inform user and request new goal"
+}
+```
+
+## Integration Requirements
+
+### Dependencies
+- `rclpy` (ROS 2 Python client)
+- `rclpy.action` (Action framework)
+- `geometry_msgs` (standard ROS 2 messages)
+- `sensor_msgs` (feedback data)
+
+### ROS 2 Setup
+```bash
+# Install dependencies
+sudo apt install ros-humble-rclpy ros-humble-geometry-msgs
+
+# Source environment
+source /opt/ros/humble/setup.bash
+
+# Launch action server
+ros2 run vla_actions navigate_server
+```
+
+### Launch File Example
+```xml
+<launch>
+  <node pkg="vla_actions" exec="navigate_server" name="navigate_server" />
+  <node pkg="vla_actions" exec="grasp_server" name="grasp_server" />
+  <node pkg="vla_planning" exec="task_executor" name="task_executor" />
+</launch>
+```
+
+## Module 4 Integration Points
+
+- **Chapter 3**: ROS 2 actionlib framework and humanoid integration
+- **Chapter 4**: Capstone integration of planning with action execution
+- **Example Files**:
+  - `code-examples/module-4/chapter-3/ros2_action_client.py`
+  - `code-examples/module-4/chapter-3/vla_action_executor.py`
+  - `code-examples/module-4/chapter-3/feedback_and_tts.py`
+  - `code-examples/module-4/capstone/vla_humanoid_full.py`
+- **Action Servers**: Navigate, Grasp, Manipulate, Execute Task Plan
+- **Input**: Task plan (from Chapter 2 LLM planning)
+- **Output**: Robot action + feedback/status (to Chapter 1 TTS)
+
+---
+
+**Citation**: ROS 2 Actions Documentation
+https://docs.ros.org/en/humble/Concepts/Intermediate/Understanding-ROS-2-actions.html

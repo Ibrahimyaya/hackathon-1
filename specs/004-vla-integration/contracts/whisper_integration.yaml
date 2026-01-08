@@ -1,0 +1,231 @@
+# Speech Recognition API Contract: OpenAI Whisper
+# Purpose: Define interface for voice-to-text transcription
+# Target: Module 4 - Vision-Language-Action Integration
+
+---
+contract_name: "Whisper Speech Recognition"
+contract_version: "1.0"
+last_updated: "2026-01-08"
+api_provider: "OpenAI"
+api_reference: "https://platform.openai.com/docs/guides/speech-to-text"
+
+## Input Specification
+
+### Audio Input
+format: "WAV, MP3, FLAC, or OGG"
+channels: "mono or stereo"
+sample_rate: "16kHz or higher (recommended)"
+max_duration: "25 minutes per request"
+max_file_size: "25MB"
+encoding: "PCM linear (16-bit) for WAV"
+
+### Request Parameters
+parameters:
+  - name: "file"
+    type: "binary"
+    required: true
+    description: "Audio file to transcribe"
+
+  - name: "model"
+    type: "string"
+    required: true
+    options: ["whisper-1"]
+    description: "Model identifier"
+
+  - name: "language"
+    type: "string"
+    required: false
+    format: "ISO-639-1 code"
+    example: "en"
+    description: "Language hint (e.g., 'en' for English)"
+
+  - name: "prompt"
+    type: "string"
+    required: false
+    max_length: "224 characters"
+    description: "Context to guide transcription"
+
+  - name: "response_format"
+    type: "string"
+    required: false
+    options: ["json", "text", "verbose_json"]
+    default: "json"
+    description: "Response format (json includes confidence, text is plain text)"
+
+  - name: "temperature"
+    type: "float"
+    required: false
+    range: "[0.0, 1.0]"
+    default: 0.0
+    description: "Sampling temperature (0 = deterministic, 1 = creative)"
+
+## Output Specification
+
+### Success Response (HTTP 200)
+response_format: "application/json"
+
+response_schema:
+  - name: "text"
+    type: "string"
+    description: "Transcribed text"
+
+  - name: "language"
+    type: "string"
+    description: "Detected language code (if verbose_json)"
+
+  - name: "segments"
+    type: "array"
+    description: "Detailed segments with timestamps (if verbose_json)"
+    segment_fields:
+      - name: "id"
+        type: "integer"
+      - name: "seek"
+        type: "integer"
+      - name: "start"
+        type: "float"
+        description: "Segment start time in seconds"
+      - name: "end"
+        type: "float"
+        description: "Segment end time in seconds"
+      - name: "text"
+        type: "string"
+        description: "Segment transcription"
+      - name: "tokens"
+        type: "array"
+        description: "Token IDs"
+      - name: "temperature"
+        type: "float"
+      - name: "avg_logprob"
+        type: "float"
+      - name: "compression_ratio"
+        type: "float"
+      - name: "no_speech_prob"
+        type: "float"
+        description: "Probability that segment is silence"
+
+### Error Response (HTTP 400/401/500)
+error_codes:
+  - code: 400
+    message: "Invalid request (missing file, unsupported format, file too large)"
+  - code: 401
+    message: "Invalid API key"
+  - code: 429
+    message: "Rate limit exceeded"
+  - code: 500
+    message: "Server error (retry with exponential backoff)"
+
+## Performance & Reliability
+
+### Latency Budget (Module 4 Target: <2 seconds)
+latency:
+  network_latency: "50-200ms (varies by region)"
+  processing_latency: "100-500ms per minute of audio"
+  total_latency_10s_audio: "~500ms-1s"
+  total_latency_60s_audio: "~1-2s"
+
+### Accuracy Requirements (Module 4 Target: >95%)
+accuracy:
+  clear_speech_wer: "<5% word error rate"
+  noisy_environment_wer: "<15% word error rate"
+  language_support: "99 languages"
+  accent_robustness: "Good (trained on diverse data)"
+
+### Reliability
+availability: "99.9% uptime SLA (OpenAI)"
+retry_policy: "Exponential backoff (2^n seconds, max 30s)"
+timeout: "30 seconds per request"
+
+## Implementation Patterns
+
+### Local Deployment (using openai-whisper)
+model_size: "tiny, base, small, medium, large"
+vram_required:
+  tiny: "1GB"
+  base: "1GB"
+  small: "2GB"
+  medium: "5GB"
+  large: "10GB"
+accuracy_small: "97% WER on benchmark"
+latency_small: "1-2s per minute of audio on RTX 3070"
+
+### Cloud Deployment (API)
+cost: "$0.02 per minute of audio"
+rate_limit: "3500 requests per minute"
+batch_processing: "Supported (upload multiple files)"
+
+## Integration Requirements
+
+### Dependencies
+- `openai` Python package (>=1.0.0)
+- `pydub` for audio file conversion
+- `pyaudio` for real-time microphone input
+
+### Authentication
+api_key_location: "OPENAI_API_KEY environment variable or constructor"
+example: "client = OpenAI(api_key='sk-...')"
+
+### Usage Example (API)
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="sk-...")
+audio_file = open("voice_sample.mp3", "rb")
+transcript = client.audio.transcriptions.create(
+    model="whisper-1",
+    file=audio_file,
+    language="en"
+)
+print(transcript.text)
+```
+
+### Usage Example (Local)
+```python
+import whisper
+
+model = whisper.load_model("small")
+result = model.transcribe("audio.mp3")
+print(result["text"])
+```
+
+## Error Recovery & Fallback
+
+### Silence Detection
+no_speech_prob_threshold: 0.5
+action_on_silence: "Retry with different audio input or prompt user"
+
+### Degraded Network
+- Retry with exponential backoff
+- Fallback to local model if available
+- Queue request for retry later
+
+### Invalid Input
+- Check audio format before sending
+- Convert unsupported formats using pydub
+- Validate file size < 25MB
+
+## Compliance & Cost Optimization
+
+### Cost Management
+- Local model suitable for resource-constrained edge deployment
+- API suitable for cloud-based applications
+- Batch processing reduces per-request cost
+
+### Data Privacy
+- Local model: All processing on-device (private)
+- API: Audio file sent to OpenAI servers (review terms)
+- Option to delete after processing via API docs
+
+## Module 4 Integration Points
+
+- **Chapter 1**: Whisper setup and integration
+- **Example Files**:
+  - `code-examples/module-4/chapter-1/whisper_hello_world.py`
+  - `code-examples/module-4/chapter-1/realtime_voice_pipeline.py`
+  - `code-examples/module-4/chapter-1/voice_error_recovery.py`
+- **ROS 2 Topic**: `/voice_commands` (std_msgs/String)
+- **Downstream Consumer**: GPT-4 planning module (Chapter 2)
+
+---
+
+**Citation**: OpenAI Whisper API Documentation
+https://platform.openai.com/docs/guides/speech-to-text

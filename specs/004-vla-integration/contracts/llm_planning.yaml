@@ -1,0 +1,344 @@
+# LLM Planning API Contract: OpenAI GPT-4
+# Purpose: Define interface for task decomposition and planning
+# Target: Module 4 - Vision-Language-Action Integration
+
+---
+contract_name: "LLM Cognitive Planning"
+contract_version: "1.0"
+last_updated: "2026-01-08"
+api_provider: "OpenAI"
+api_reference: "https://platform.openai.com/docs/guides/gpt"
+
+## Input Specification
+
+### Request Structure
+model: "gpt-4 or gpt-4-turbo"
+messages:
+  - role: "system"
+    content: "System prompt defining planner behavior"
+  - role: "user"
+    content: "Voice command or planning request"
+
+### System Prompt Pattern
+```
+You are a task planning system for a humanoid robot. Your role is to:
+1. Understand natural language commands from users
+2. Decompose complex tasks into executable sub-goals
+3. Validate that requested actions are within robot capabilities
+4. Return structured task plans in JSON format
+
+Capabilities (update with actual robot specs):
+- Navigation: Move to any point in 10m x 10m workspace
+- Grasping: Pick and place objects <2kg
+- Manipulation: Rotate gripper 0-180 degrees
+- Movement: Walk forward/backward, turn left/right
+- Constraints: No climbing, no water interaction
+
+Return format:
+{
+  "goal": "main objective",
+  "sub_goals": ["goal1", "goal2", ...],
+  "action_sequence": [
+    {"action": "navigate", "target": "location"},
+    {"action": "grasp", "object": "name"},
+    ...
+  ],
+  "feasibility": "yes/no",
+  "confidence": 0.95,
+  "safety_notes": "any risks"
+}
+```
+
+### Request Parameters
+parameters:
+  - name: "messages"
+    type: "array"
+    required: true
+    description: "Conversation history for multi-turn planning"
+
+  - name: "temperature"
+    type: "float"
+    required: false
+    range: "[0.0, 1.0]"
+    default: 0.3
+    description: "Lower = deterministic planning, Higher = creative decomposition"
+
+  - name: "max_tokens"
+    type: "integer"
+    required: false
+    default: 500
+    description: "Max response length (typically 200-500 for task plans)"
+
+  - name: "top_p"
+    type: "float"
+    required: false
+    range: "[0.0, 1.0]"
+    default: 0.9
+    description: "Nucleus sampling for diverse planning"
+
+## Output Specification
+
+### Success Response (HTTP 200)
+response_format: "application/json"
+
+response_schema:
+  - name: "id"
+    type: "string"
+    description: "Unique message ID"
+
+  - name: "choices"
+    type: "array"
+    items:
+      - name: "message"
+        type: "object"
+        fields:
+          - name: "role"
+            type: "string"
+            value: "assistant"
+          - name: "content"
+            type: "string"
+            description: "Task plan in JSON format"
+
+      - name: "finish_reason"
+        type: "string"
+        options: ["stop", "length", "function_call"]
+        description: "Reason generation stopped"
+
+  - name: "usage"
+    type: "object"
+    fields:
+      - name: "prompt_tokens"
+        type: "integer"
+      - name: "completion_tokens"
+        type: "integer"
+      - name: "total_tokens"
+        type: "integer"
+
+### Expected Task Plan Format
+```json
+{
+  "goal": "Pick up the blue ball and place it on the table",
+  "sub_goals": [
+    "Navigate to ball location",
+    "Grasp the blue ball",
+    "Navigate to table",
+    "Place ball on table"
+  ],
+  "action_sequence": [
+    {
+      "id": 1,
+      "action": "navigate",
+      "target_location": "ball_location",
+      "parameters": {"x": 1.5, "y": 2.0}
+    },
+    {
+      "id": 2,
+      "action": "grasp",
+      "object_id": "blue_ball",
+      "grip_force": "medium"
+    },
+    {
+      "id": 3,
+      "action": "navigate",
+      "target_location": "table_location",
+      "parameters": {"x": 0.5, "y": 0.5}
+    },
+    {
+      "id": 4,
+      "action": "release",
+      "position": "table_top",
+      "parameters": {"x": 0.5, "y": 0.5, "z": 0.8}
+    }
+  ],
+  "feasibility": "yes",
+  "confidence": 0.92,
+  "safety_notes": "Clear path verified, no obstacles detected",
+  "dependencies": "Actions execute sequentially (2 depends on 1)",
+  "estimated_duration": "8 seconds"
+}
+```
+
+### Error Response (HTTP 400/401/500)
+error_codes:
+  - code: 400
+    message: "Invalid request (missing messages, invalid JSON)"
+  - code: 401
+    message: "Invalid API key"
+  - code: 429
+    message: "Rate limit exceeded (3500 req/min)"
+  - code: 500
+    message: "Server error (retry)"
+
+## Performance & Reliability
+
+### Latency Budget (Module 4 Target: <3 seconds)
+latency:
+  network_latency: "50-200ms"
+  gpt4_inference: "1-3 seconds (varies by prompt complexity)"
+  total_latency: "1-3.5 seconds for typical task planning"
+
+### Quality Requirements (Module 4 Target: >80% valid plans)
+quality:
+  plan_validity: ">80% of generated plans are executable"
+  action_format_accuracy: "100% valid JSON structure"
+  feasibility_detection: "Correctly identifies impossible tasks >90%"
+
+### Reliability
+availability: "99.9% uptime (OpenAI)"
+retry_policy: "Exponential backoff (2^n seconds)"
+timeout: "30 seconds per request"
+
+## Implementation Patterns
+
+### Capability-Aware Planning
+```python
+system_prompt = """
+You are a task planner for a humanoid robot.
+
+ROBOT CAPABILITIES:
+- Max reach: 1.5 meters
+- Max grip force: 50 Newtons
+- Max object weight: 2 kg
+- Workspace: 3m x 3m floor area
+- Speed: 0.5 m/s walking, 2 m/s grasping
+
+CONSTRAINTS:
+- No water interaction
+- No electrical hazards
+- Safety radius around humans: 0.5m
+- Emergency stop available
+
+When planning:
+1. Validate each action fits capabilities
+2. Flag infeasible actions
+3. Suggest alternatives for impossible requests
+4. Explain constraints in human-readable form
+
+Return JSON with "feasibility" field (yes/no).
+"""
+```
+
+### Multi-Step Decomposition
+```python
+# Include previous context for multi-turn planning
+messages = [
+    {
+        "role": "system",
+        "content": system_prompt
+    },
+    {
+        "role": "user",
+        "content": "First, navigate to the kitchen"
+    },
+    {
+        "role": "assistant",
+        "content": json.dumps(kitchen_plan)
+    },
+    {
+        "role": "user",
+        "content": "Then pick up the cup from the table"
+    },
+    # GPT-4 will include context from previous exchange
+]
+```
+
+### Safety Validation
+```python
+safety_checks = {
+    "collision_detection": "Enabled - no obstacles in path",
+    "human_proximity": "Checked - no humans nearby",
+    "gripper_load": "Validated - object < 2kg",
+    "energy_budget": "Sufficient for 5-minute task"
+}
+```
+
+## Integration Requirements
+
+### Dependencies
+- `openai` Python package (>=1.0.0)
+- `pydantic` for response validation
+- `json` for parsing task plans
+
+### Authentication
+api_key_location: "OPENAI_API_KEY environment variable"
+example: "client = OpenAI(api_key='sk-...')"
+
+### Usage Example
+```python
+from openai import OpenAI
+import json
+
+client = OpenAI(api_key="sk-...")
+
+system_prompt = "You are a task planner for a humanoid robot. [capabilities and constraints]"
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "Pick up the ball and move it to the table"}
+    ],
+    temperature=0.3,
+    max_tokens=500
+)
+
+plan_json = json.loads(response.choices[0].message.content)
+print(f"Goal: {plan_json['goal']}")
+print(f"Actions: {plan_json['action_sequence']}")
+print(f"Feasibility: {plan_json['feasibility']}")
+```
+
+## Error Recovery & Fallback
+
+### Invalid Response JSON
+- Catch JSONDecodeError, request re-planning with explicit format
+- Fallback: Use simplified action sequence (navigate → grasp → place)
+
+### Infeasible Plan
+- LLM returns feasibility: "no"
+- Action: Prompt user for modified request
+- Log infeasibility reason for debugging
+
+### Timeout or Rate Limit
+- Retry with exponential backoff (max 3 attempts)
+- Queue long-duration tasks for batch processing
+- Monitor token usage to avoid limit surprises
+
+### LLM Refusal
+- Some commands trigger safety refusal (e.g., "throw object at human")
+- Catch and inform user: "That action violates safety constraints"
+- Suggest safe alternative
+
+## Compliance & Cost Optimization
+
+### Cost Management
+- Average cost: $0.03 per planning request (prompt + completion tokens)
+- Typical monthly cost: $100-500 for active research
+- Use gpt-3.5-turbo ($0.001/comp token) for development/testing
+
+### Token Estimation
+- Typical planning request: 50-100 tokens input, 100-200 tokens output
+- System prompt (reused): 200-300 tokens
+- Multi-turn planning: +200 tokens per prior exchange
+
+### Rate Limiting
+- 3500 requests per minute (sufficient for real-time use)
+- Batch requests when feasible (e.g., plan multiple tasks at once)
+
+## Module 4 Integration Points
+
+- **Chapter 2**: LLM planning and prompt engineering
+- **Chapter 4**: Capstone integration of planning with action execution
+- **Example Files**:
+  - `code-examples/module-4/chapter-2/llm_task_planning.py`
+  - `code-examples/module-4/chapter-2/capability_aware_planning.py`
+  - `code-examples/module-4/chapter-2/multi_step_decomposition.py`
+  - `code-examples/module-4/capstone/vla_humanoid_full.py`
+- **ROS 2 Service**: `/plan_task` (returns task plan)
+- **Input**: Transcribed voice command (from Chapter 1)
+- **Output**: Structured task plan (to Chapter 3 execution)
+
+---
+
+**Citation**: OpenAI GPT-4 API Documentation
+https://platform.openai.com/docs/guides/gpt
