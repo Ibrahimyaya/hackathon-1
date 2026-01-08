@@ -33,16 +33,16 @@
 
 ⚠️ **CRITICAL**: No chapter content can proceed until this phase completes
 
-- [ ] T007 [P] Research Whisper integration best practices (latency, accuracy, error handling, cost optimization) in `specs/004-vla-integration/research.md`
-- [ ] T008 [P] Research GPT-4 prompt engineering for task planning (capability constraints, safety validation, multi-step decomposition) in research.md
-- [ ] T009 [P] Research ROS 2 actionlib patterns (client/server architecture, feedback, timeout handling) in research.md
-- [ ] T010 [P] Research voice-to-action integration design (latency budget, pipeline optimization, end-to-end patterns) in research.md
-- [ ] T011 [P] Research safety and error recovery strategies (graceful failures, fallbacks, user communication) in research.md
-- [ ] T012 Create module intro content (overview, stack, Module 1-3 continuity) in `docs/module-4-vla/01-intro.md`
-- [ ] T013 Create data model document in `specs/004-vla-integration/data-model.md` (Voice Command, Task Plan, ROS 2 Action, Execution Feedback entities)
-- [ ] T014 Document Whisper installation and setup procedure for Ubuntu 22.04 in research.md
-- [ ] T015 Document GPT-4 API authentication and setup in research.md
-- [ ] T016 Document ROS 2 integration patterns and actionlib basics in research.md
+- [x] T007 [P] Research Whisper integration best practices (latency, accuracy, error handling, cost optimization) in `specs/004-vla-integration/research.md`
+- [x] T008 [P] Research GPT-4 prompt engineering for task planning (capability constraints, safety validation, multi-step decomposition) in research.md
+- [x] T009 [P] Research ROS 2 actionlib patterns (client/server architecture, feedback, timeout handling) in research.md
+- [x] T010 [P] Research voice-to-action integration design (latency budget, pipeline optimization, end-to-end patterns) in research.md
+- [x] T011 [P] Research safety and error recovery strategies (graceful failures, fallbacks, user communication) in research.md
+- [x] T012 Create module intro content (overview, stack, Module 1-3 continuity) in `docs/module-4-vla/01-intro.md`
+- [x] T013 Create data model document in `specs/004-vla-integration/data-model.md` (Voice Command, Task Plan, ROS 2 Action, Execution Feedback entities)
+- [x] T014 Document Whisper installation and setup procedure for Ubuntu 22.04 in research.md
+- [x] T015 Document GPT-4 API authentication and setup in research.md
+- [x] T016 Document ROS 2 integration patterns and actionlib basics in research.md
 
 **Checkpoint**: Foundation complete - all research resolved, architectural patterns understood
 
