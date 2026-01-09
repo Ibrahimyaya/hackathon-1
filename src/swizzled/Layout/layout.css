@@ -1,0 +1,259 @@
+/* Layout Component Styles - Main Layout Grid */
+/* Feature: 005-docusaurus-ui-upgrade */
+/* Date: 2026-01-09 */
+
+/* ============================================================================
+   LAYOUT ROOT
+   ============================================================================ */
+
+.layout-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+}
+
+/* ============================================================================
+   MAIN LAYOUT GRID
+   Responsive: 1 col (mobile) → 2 col (tablet) → 3 col (desktop)
+   ============================================================================ */
+
+.layout-main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr;
+  gap: 0;
+  min-height: 100%;
+}
+
+/* Mobile: Single column, sidebar hidden */
+@media (max-width: 767px) {
+  .layout-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet: Two columns (sidebar + content) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .layout-main {
+    grid-template-columns: 250px 1fr;
+  }
+}
+
+/* Desktop: Three columns (sidebar + content + toc) */
+@media (min-width: 1024px) {
+  .layout-main {
+    grid-template-columns: 280px 1fr 280px;
+  }
+}
+
+/* ============================================================================
+   MAIN CONTENT AREA
+   ============================================================================ */
+
+.layout-content {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ============================================================================
+   MOBILE HEADER
+   Hamburger menu + Title (visible only on mobile)
+   ============================================================================ */
+
+.layout-header-mobile {
+  display: none;
+  align-items: center;
+  gap: var(--ds-spacing-md);
+  padding: var(--ds-spacing-md);
+  background-color: var(--ds-color-background);
+  border-bottom: 1px solid var(--ds-color-border);
+  min-height: 60px;
+}
+
+@media (max-width: 767px) {
+  .layout-header-mobile {
+    display: flex;
+  }
+}
+
+.layout-header-title {
+  font-size: var(--ds-font-size-lg);
+  font-weight: var(--ds-font-weight-bold);
+  color: var(--ds-color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+/* ============================================================================
+   MAIN CONTENT WRAPPER
+   ============================================================================ */
+
+.main-content-wrapper {
+  flex: 1;
+  padding: var(--ds-spacing-lg);
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .main-content-wrapper {
+    padding: var(--ds-spacing-md);
+  }
+}
+
+/* ============================================================================
+   TABLE OF CONTENTS (Right Sidebar)
+   ============================================================================ */
+
+.layout-toc {
+  display: none;
+  padding: var(--ds-spacing-lg);
+  border-left: 1px solid var(--ds-color-border);
+  overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+  .layout-toc {
+    display: block;
+  }
+}
+
+/* ============================================================================
+   SIDEBAR TOGGLE BUTTON (Mobile Hamburger)
+   ============================================================================ */
+
+.sidebar-toggle {
+  display: none;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+}
+
+/* ============================================================================
+   SIDEBAR OVERLAY (Mobile)
+   Dim background when sidebar is open on mobile
+   ============================================================================ */
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 150ms ease-in-out;
+}
+
+@media (max-width: 767px) {
+  .sidebar-overlay.open {
+    display: block;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE SPACING
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .main-content-wrapper {
+    padding: var(--ds-spacing-md);
+  }
+}
+
+@media (min-width: 768px) {
+  .main-content-wrapper {
+    padding: var(--ds-spacing-lg);
+  }
+}
+
+@media (min-width: 1440px) {
+  .main-content-wrapper {
+    padding: var(--ds-spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================================================
+   FOCUS MANAGEMENT
+   Ensure proper tab order and focus visibility
+   ============================================================================ */
+
+.layout-content:focus-visible {
+  outline: none;
+}
+
+.sidebar-toggle:focus-visible {
+  outline: var(--ds-focus-ring);
+  outline-offset: var(--ds-focus-ring-offset);
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+
+@media print {
+  .layout-header-mobile,
+  .sidebar,
+  .sidebar-overlay,
+  .sidebar-toggle,
+  .layout-toc {
+    display: none !important;
+  }
+
+  .layout-main {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content-wrapper {
+    padding: 0;
+    max-width: 100%;
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-overlay {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT
+   ============================================================================ */
+
+[data-theme="dark"] .layout-header-mobile {
+  background-color: var(--ds-color-background);
+  border-bottom-color: var(--ds-color-border);
+}
+
+[data-theme="dark"] .layout-content {
+  background-color: var(--ds-color-background);
+}
+
+[data-theme="dark"] .layout-toc {
+  border-left-color: var(--ds-color-border);
+}

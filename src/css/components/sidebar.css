@@ -1,0 +1,439 @@
+/* Sidebar Navigation - Docusaurus UI Upgrade */
+/* Feature: 005-docusaurus-ui-upgrade */
+/* Date: 2026-01-09 */
+/* User Story 1: Module Discovery & Navigation */
+
+/* ============================================================================
+   SIDEBAR CONTAINER
+   ============================================================================ */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+  border-right: 1px solid var(--ds-color-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: all var(--ds-transition-base);
+}
+
+/* Mobile: Hidden by default, shown when open */
+@media (max-width: 767px) {
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1000;
+    border-right: none;
+    box-shadow: var(--ds-shadow-lg);
+    transition: left var(--ds-transition-base);
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+/* Tablet: Visible navigation column */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar {
+    width: 250px;
+    border-right: 1px solid var(--ds-color-border);
+  }
+}
+
+/* Desktop: Sticky sidebar */
+@media (min-width: 1024px) {
+  .sidebar {
+    position: sticky;
+    top: 80px;
+    width: 280px;
+    height: calc(100vh - 80px);
+    border-right: 1px solid var(--ds-color-border);
+  }
+}
+
+/* ============================================================================
+   SIDEBAR HEADER
+   ============================================================================ */
+
+.sidebar-header {
+  padding: var(--ds-spacing-md) var(--ds-spacing-lg);
+  border-bottom: 1px solid var(--ds-color-border);
+  flex-shrink: 0;
+}
+
+.sidebar-header-title {
+  font-size: var(--ds-font-size-lg);
+  font-weight: var(--ds-font-weight-bold);
+  color: var(--ds-color-text-primary);
+  margin: 0;
+}
+
+.sidebar-header-subtitle {
+  font-size: var(--ds-font-size-sm);
+  color: var(--ds-color-text-secondary);
+  margin: var(--ds-spacing-xs) 0 0 0;
+}
+
+/* ============================================================================
+   SIDEBAR CONTENT
+   Module and chapter list
+   ============================================================================ */
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ds-spacing-md) 0;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: var(--ds-color-border);
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: var(--ds-color-neutral-500);
+}
+
+/* ============================================================================
+   MODULE (Category) STYLING
+   ============================================================================ */
+
+.sidebar-module {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--ds-color-border);
+}
+
+.sidebar-module:last-child {
+  border-bottom: none;
+}
+
+/* Module header (category title) */
+.sidebar-module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ds-spacing-md) var(--ds-spacing-lg);
+  background-color: var(--ds-color-background);
+  border: none;
+  cursor: pointer;
+  font-size: var(--ds-font-size-base);
+  font-weight: var(--ds-font-weight-semibold);
+  color: var(--ds-color-text-primary);
+  width: 100%;
+  text-align: left;
+  transition: background-color var(--ds-transition-fast),
+              color var(--ds-transition-fast);
+  min-height: 44px;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.sidebar-module-header:hover {
+  background-color: var(--ds-color-surface);
+  color: var(--ds-color-primary);
+}
+
+.sidebar-module-header:active {
+  background-color: var(--ds-color-surface-2);
+}
+
+.sidebar-module-header:focus-visible {
+  outline: var(--ds-focus-ring);
+  outline-offset: -2px;
+}
+
+/* Expand/collapse icon */
+.sidebar-module-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--ds-spacing-sm);
+  transition: transform var(--ds-transition-fast);
+  flex-shrink: 0;
+}
+
+.sidebar-module.expanded .sidebar-module-icon {
+  transform: rotate(90deg);
+}
+
+/* Module expanded state indicator */
+.sidebar-module.expanded .sidebar-module-header {
+  background-color: var(--ds-color-surface);
+  color: var(--ds-color-primary);
+  font-weight: var(--ds-font-weight-bold);
+}
+
+/* ============================================================================
+   CHAPTER (Item) STYLING
+   ============================================================================ */
+
+.sidebar-chapters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--ds-transition-base);
+}
+
+.sidebar-module.expanded .sidebar-chapters {
+  max-height: 2000px;
+}
+
+.sidebar-chapter {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-chapter-link {
+  display: flex;
+  align-items: center;
+  padding: var(--ds-spacing-sm) var(--ds-spacing-lg) var(--ds-spacing-sm) calc(var(--ds-spacing-lg) + 24px);
+  color: var(--ds-color-text-primary);
+  text-decoration: none;
+  font-size: var(--ds-font-size-sm);
+  font-weight: var(--ds-font-weight-normal);
+  line-height: var(--ds-line-height-normal);
+  transition: background-color var(--ds-transition-fast),
+              color var(--ds-transition-fast),
+              padding-left var(--ds-transition-fast);
+  cursor: pointer;
+  min-height: 44px;
+  touch-action: manipulation;
+  border-left: 3px solid transparent;
+  word-break: break-word;
+}
+
+.sidebar-chapter-link:hover {
+  background-color: var(--ds-color-surface);
+  color: var(--ds-color-primary);
+  padding-left: calc(var(--ds-spacing-lg) + 28px);
+}
+
+.sidebar-chapter-link:focus-visible {
+  outline: var(--ds-focus-ring);
+  outline-offset: -2px;
+}
+
+/* Active/current page styling */
+.sidebar-chapter-link.active {
+  background-color: var(--ds-color-surface);
+  color: var(--ds-color-primary);
+  font-weight: var(--ds-font-weight-semibold);
+  border-left-color: var(--ds-color-primary);
+  padding-left: calc(var(--ds-spacing-lg) + 24px);
+}
+
+.sidebar-chapter-link.active::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--ds-color-primary);
+  margin-right: var(--ds-spacing-sm);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   SIDEBAR FOOTER
+   ============================================================================ */
+
+.sidebar-footer {
+  padding: var(--ds-spacing-md) var(--ds-spacing-lg);
+  border-top: 1px solid var(--ds-color-border);
+  flex-shrink: 0;
+  font-size: var(--ds-font-size-xs);
+  color: var(--ds-color-text-tertiary);
+  text-align: center;
+}
+
+/* ============================================================================
+   HAMBURGER MENU BUTTON (Mobile)
+   ============================================================================ */
+
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: var(--ds-spacing-sm);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ds-color-text-primary);
+  border-radius: var(--ds-border-radius-md);
+  transition: background-color var(--ds-transition-fast);
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.sidebar-toggle:hover {
+  background-color: var(--ds-color-surface);
+}
+
+.sidebar-toggle:focus-visible {
+  outline: var(--ds-focus-ring);
+  outline-offset: var(--ds-focus-ring-offset);
+}
+
+/* Show on mobile */
+@media (max-width: 767px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+}
+
+/* Hamburger icon */
+.sidebar-toggle-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 20px;
+  height: 16px;
+}
+
+.sidebar-toggle-line {
+  height: 2px;
+  width: 100%;
+  background-color: currentColor;
+  border-radius: 1px;
+  transition: all var(--ds-transition-fast);
+}
+
+.sidebar-toggle.open .sidebar-toggle-line:nth-child(1) {
+  transform: rotate(45deg) translate(7px, 7px);
+}
+
+.sidebar-toggle.open .sidebar-toggle-line:nth-child(2) {
+  opacity: 0;
+}
+
+.sidebar-toggle.open .sidebar-toggle-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* ============================================================================
+   SIDEBAR OVERLAY (Mobile)
+   Click outside to close sidebar
+   ============================================================================ */
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn var(--ds-transition-fast);
+}
+
+@media (max-width: 767px) {
+  .sidebar-overlay.open {
+    display: block;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================ */
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  .sidebar-module-header,
+  .sidebar-chapter-link {
+    border: 1px solid transparent;
+  }
+
+  .sidebar-module-header:hover,
+  .sidebar-chapter-link:hover {
+    border: 1px solid var(--ds-color-primary);
+  }
+
+  .sidebar-chapter-link.active {
+    border-left: 3px solid var(--ds-color-primary);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar-module-header,
+  .sidebar-chapter-link,
+  .sidebar-module-icon,
+  .sidebar-toggle-line {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .sidebar-module-header {
+    font-size: var(--ds-font-size-sm);
+    padding: var(--ds-spacing-sm) var(--ds-spacing-md);
+  }
+
+  .sidebar-chapter-link {
+    font-size: var(--ds-font-size-xs);
+    padding: var(--ds-spacing-xs) var(--ds-spacing-md) var(--ds-spacing-xs) calc(var(--ds-spacing-md) + 20px);
+  }
+
+  .sidebar-chapter-link.active::before {
+    width: 3px;
+    height: 3px;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR CUSTOMIZATION
+   ============================================================================ */
+
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: var(--ds-color-surface);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--ds-color-border);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--ds-color-neutral-500);
+}
