@@ -81,21 +81,14 @@
 }
 
 /* ============================================================================
-   THEME PERSISTENCE SCRIPT
+   THEME PERSISTENCE
    Prevent flash of unstyled content (FOUC) by applying theme before React loads
+
+   IMPLEMENTATION NOTE:
+   This script should be added to src/swizzled/Root.tsx (React component) or
+   as an inline script in docusaurus.config.js themeConfig section.
+   See Phase 8 tasks for theme toggle implementation.
    ============================================================================ */
-
-<script>
-(function() {
-  const savedTheme = localStorage.getItem('app-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-
-  if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-})();
-</script>
 
 /* ============================================================================
    GLOBAL STYLES
