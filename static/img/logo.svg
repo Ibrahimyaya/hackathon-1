@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- ROS 2 inspired logo -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#2e8555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="85" fill="none" stroke="#33925e" stroke-width="2"/>
+
+  <!-- Humanoid silhouette -->
+  <circle cx="100" cy="40" r="15" fill="#2e8555"/>
+  <rect x="90" y="60" width="20" height="30" fill="#2e8555"/>
+  <rect x="70" y="65" width="15" height="35" fill="#2e8555"/>
+  <rect x="115" y="65" width="15" height="35" fill="#2e8555"/>
+  <rect x="80" y="100" width="12" height="40" fill="#2e8555"/>
+  <rect x="108" y="100" width="12" height="40" fill="#2e8555"/>
+
+  <!-- Text -->
+  <text x="100" y="160" font-size="12" font-weight="bold" text-anchor="middle" fill="#2e8555">ROS 2</text>
+</svg>

@@ -1,0 +1,348 @@
+/* Typography System - Docusaurus UI Upgrade */
+/* Feature: 005-docusaurus-ui-upgrade */
+/* Date: 2026-01-09 */
+
+/* ============================================================================
+   BASE TYPOGRAPHY
+   Applied to all elements, uses CSS variables from :root
+   ============================================================================ */
+
+html {
+  font-family: var(--ds-font-family-body);
+  font-size: var(--ds-font-size-base);
+  line-height: var(--ds-line-height-relaxed);
+  color: var(--ds-color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--ds-font-family-body);
+  font-size: var(--ds-font-size-base);
+  font-weight: var(--ds-font-weight-normal);
+  line-height: var(--ds-line-height-relaxed);
+  color: var(--ds-color-text-primary);
+  background-color: var(--ds-color-background);
+}
+
+/* ============================================================================
+   HEADINGS - H1 through H6
+   Progressive scaling from H1 (32px) down to H6 (16px)
+   ============================================================================ */
+
+h1,
+.h1 {
+  font-size: var(--ds-font-size-4xl);       /* 32px */
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-line-height-tight);
+  letter-spacing: var(--ds-letter-spacing-tight);
+  margin: var(--ds-spacing-lg) 0 var(--ds-spacing-md) 0;
+  color: var(--ds-color-text-primary);
+}
+
+h2,
+.h2 {
+  font-size: var(--ds-font-size-3xl);       /* 28px */
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-line-height-tight);
+  letter-spacing: var(--ds-letter-spacing-tight);
+  margin: var(--ds-spacing-lg) 0 var(--ds-spacing-md) 0;
+  color: var(--ds-color-text-primary);
+}
+
+h3,
+.h3 {
+  font-size: var(--ds-font-size-2xl);       /* 24px */
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-line-height-tight);
+  letter-spacing: var(--ds-letter-spacing-tight);
+  margin: var(--ds-spacing-md) 0 var(--ds-spacing-sm) 0;
+  color: var(--ds-color-text-primary);
+}
+
+h4,
+.h4 {
+  font-size: var(--ds-font-size-xl);        /* 20px */
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-line-height-normal);
+  margin: var(--ds-spacing-md) 0 var(--ds-spacing-sm) 0;
+  color: var(--ds-color-text-primary);
+}
+
+h5,
+.h5 {
+  font-size: var(--ds-font-size-lg);        /* 18px */
+  font-weight: var(--ds-font-weight-semibold);
+  line-height: var(--ds-line-height-normal);
+  margin: var(--ds-spacing-sm) 0 var(--ds-spacing-xs) 0;
+  color: var(--ds-color-text-primary);
+}
+
+h6,
+.h6 {
+  font-size: var(--ds-font-size-base);      /* 16px */
+  font-weight: var(--ds-font-weight-semibold);
+  line-height: var(--ds-line-height-normal);
+  margin: var(--ds-spacing-sm) 0 var(--ds-spacing-xs) 0;
+  color: var(--ds-color-text-secondary);
+}
+
+/* ============================================================================
+   PARAGRAPH & TEXT ELEMENTS
+   ============================================================================ */
+
+p {
+  margin: 0 0 var(--ds-spacing-md) 0;
+  font-size: var(--ds-font-size-base);
+  line-height: var(--ds-line-height-relaxed);
+  color: var(--ds-color-text-primary);
+}
+
+/* Small text - breadcrumbs, timestamps, metadata */
+small,
+.small {
+  font-size: var(--ds-font-size-sm);
+  color: var(--ds-color-text-secondary);
+}
+
+/* Emphasized text */
+em,
+i {
+  font-style: italic;
+}
+
+/* Strong text */
+strong,
+b {
+  font-weight: var(--ds-font-weight-bold);
+  color: var(--ds-color-text-primary);
+}
+
+/* Strikethrough */
+s,
+del {
+  color: var(--ds-color-text-tertiary);
+  text-decoration: line-through;
+}
+
+/* ============================================================================
+   LINKS & ANCHORS
+   ============================================================================ */
+
+a,
+.link {
+  color: var(--ds-color-primary);
+  text-decoration: none;
+  font-weight: var(--ds-font-weight-normal);
+  transition: color var(--ds-transition-fast);
+  cursor: pointer;
+}
+
+a:hover,
+.link:hover {
+  color: var(--ds-color-primary-hover);
+  text-decoration: underline;
+}
+
+a:active,
+.link:active {
+  color: var(--ds-color-primary-dark);
+}
+
+a:focus,
+.link:focus {
+  outline: var(--ds-focus-ring);
+  outline-offset: var(--ds-focus-ring-offset);
+}
+
+/* ============================================================================
+   LISTS
+   ============================================================================ */
+
+ul,
+ol {
+  margin: 0 0 var(--ds-spacing-md) 0;
+  padding-left: var(--ds-spacing-lg);
+  font-size: var(--ds-font-size-base);
+  line-height: var(--ds-line-height-relaxed);
+}
+
+li {
+  margin: var(--ds-spacing-xs) 0;
+  color: var(--ds-color-text-primary);
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+  margin: var(--ds-spacing-sm) 0 0 0;
+}
+
+/* ============================================================================
+   CODE & PRE
+   ============================================================================ */
+
+code {
+  font-family: var(--ds-font-family-code);
+  font-size: var(--ds-font-size-sm);
+  background-color: var(--ds-color-surface);
+  color: var(--ds-color-text-primary);
+  padding: 2px 6px;
+  border-radius: var(--ds-border-radius-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+pre {
+  background-color: var(--ds-color-surface);
+  color: var(--ds-color-text-primary);
+  padding: var(--ds-spacing-md);
+  border-radius: var(--ds-border-radius-md);
+  overflow-x: auto;
+  margin: 0 0 var(--ds-spacing-md) 0;
+  font-family: var(--ds-font-family-code);
+  font-size: var(--ds-font-size-sm);
+  line-height: var(--ds-line-height-normal);
+}
+
+pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  white-space: pre;
+  word-break: normal;
+}
+
+/* ============================================================================
+   BLOCKQUOTES
+   ============================================================================ */
+
+blockquote {
+  margin: 0 0 var(--ds-spacing-md) 0;
+  padding: var(--ds-spacing-md) var(--ds-spacing-md) var(--ds-spacing-md) var(--ds-spacing-lg);
+  border-left: 4px solid var(--ds-color-primary);
+  background-color: var(--ds-color-surface);
+  font-style: italic;
+  color: var(--ds-color-text-secondary);
+}
+
+blockquote p {
+  margin: 0;
+}
+
+blockquote cite {
+  display: block;
+  margin-top: var(--ds-spacing-sm);
+  font-style: normal;
+  font-size: var(--ds-font-size-sm);
+  color: var(--ds-color-text-tertiary);
+}
+
+/* ============================================================================
+   TABLES
+   ============================================================================ */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 var(--ds-spacing-md) 0;
+  font-size: var(--ds-font-size-base);
+  line-height: var(--ds-line-height-normal);
+}
+
+thead {
+  background-color: var(--ds-color-surface);
+}
+
+th,
+td {
+  padding: var(--ds-spacing-sm) var(--ds-spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--ds-color-border);
+  color: var(--ds-color-text-primary);
+}
+
+th {
+  font-weight: var(--ds-font-weight-bold);
+  color: var(--ds-color-text-primary);
+}
+
+tbody tr:hover {
+  background-color: var(--ds-color-surface);
+}
+
+/* ============================================================================
+   HORIZONTAL RULE
+   ============================================================================ */
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--ds-color-border);
+  margin: var(--ds-spacing-lg) 0;
+}
+
+/* ============================================================================
+   MARK / HIGHLIGHT
+   ============================================================================ */
+
+mark,
+.highlight {
+  background-color: var(--ds-color-accent);
+  padding: 0 4px;
+  border-radius: var(--ds-border-radius-sm);
+}
+
+/* ============================================================================
+   FORM ELEMENTS
+   ============================================================================ */
+
+input,
+textarea,
+select {
+  font-family: var(--ds-font-family-body);
+  font-size: var(--ds-font-size-base);
+  color: var(--ds-color-text-primary);
+}
+
+label {
+  display: block;
+  font-size: var(--ds-font-size-sm);
+  font-weight: var(--ds-font-weight-semibold);
+  margin-bottom: var(--ds-spacing-xs);
+  color: var(--ds-color-text-primary);
+}
+
+/* ============================================================================
+   RESPONSIVE TYPOGRAPHY
+   Adjust font sizes for mobile screens
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  h1,
+  .h1 {
+    font-size: var(--ds-font-size-3xl);     /* 28px on mobile */
+  }
+
+  h2,
+  .h2 {
+    font-size: var(--ds-font-size-2xl);     /* 24px on mobile */
+  }
+
+  h3,
+  .h3 {
+    font-size: var(--ds-font-size-xl);      /* 20px on mobile */
+  }
+
+  code {
+    font-size: 11px;                        /* Slightly smaller on mobile */
+  }
+
+  pre {
+    padding: var(--ds-spacing-sm);
+    font-size: 11px;
+  }
+}

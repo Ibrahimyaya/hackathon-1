@@ -1,0 +1,347 @@
+/* Responsive Design System - Docusaurus UI Upgrade */
+/* Feature: 005-docusaurus-ui-upgrade */
+/* Date: 2026-01-09 */
+/* Mobile-first approach: start with 320px base, add media queries for larger viewports */
+
+/* ============================================================================
+   RESPONSIVE BREAKPOINT UTILITIES
+   Use these media queries to apply responsive styles
+   ============================================================================ */
+
+/* ============================================================================
+   MOBILE: 320px - 767px (Base Styles - No Media Query Needed)
+
+   Default styles apply to mobile. These are the base styles that all other
+   breakpoints build upon.
+   ============================================================================ */
+
+/* Example mobile-first structure:
+   .component {
+     width: 100%;         / * Mobile default * /
+     padding: 16px;       / * Mobile spacing * /
+     font-size: 14px;     / * Mobile font size * /
+   }
+*/
+
+/* ============================================================================
+   TABLET: 768px - 1023px
+
+   Use this breakpoint for tablets and large phones.
+   Typically: 2-column layout, larger text, more breathing room.
+   ============================================================================ */
+
+@media (min-width: 768px) {
+  /* This breakpoint is active for tablets and up */
+}
+
+/* ============================================================================
+   DESKTOP: 1024px - 1439px
+
+   Use this breakpoint for standard desktop screens.
+   Typically: 3-column layout (sidebar + content + right rail), full-width designs.
+   ============================================================================ */
+
+@media (min-width: 1024px) {
+  /* This breakpoint is active for desktop and up */
+}
+
+/* ============================================================================
+   LARGE: 1440px+
+
+   Use this breakpoint for large monitors and ultra-wide screens.
+   Typically: maximum width constraints, wider sidebars, enhanced spacing.
+   ============================================================================ */
+
+@media (min-width: 1440px) {
+  /* This breakpoint is active for large screens and up */
+
+  /* Limit max content width to prevent excessively long lines */
+  body {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE UTILITY CLASSES
+   Apply these classes to hide/show content at specific breakpoints
+   ============================================================================ */
+
+/* Hide on mobile, show on tablet+ */
+.hidden-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hidden-mobile {
+    display: block;
+  }
+}
+
+/* Show on mobile, hide on tablet+ */
+.hidden-tablet-up {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .hidden-tablet-up {
+    display: none;
+  }
+}
+
+/* Hide on desktop, show on tablet and below */
+.hidden-desktop {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .hidden-desktop {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   CONTAINER RESPONSIVE CLASSES
+   ============================================================================ */
+
+.container {
+  width: 100%;
+  padding-left: var(--ds-spacing-md);
+  padding-right: var(--ds-spacing-md);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+    padding-left: var(--ds-spacing-lg);
+    padding-right: var(--ds-spacing-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+/* ============================================================================
+   TOUCH TARGET SIZING
+   Ensure all interactive elements meet 44x44px minimum (WCAG AA requirement)
+   ============================================================================ */
+
+/* Buttons */
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-height: 44px;
+  min-width: 44px;
+  padding: var(--ds-spacing-sm) var(--ds-spacing-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Links and clickable elements */
+a,
+[role="link"],
+[role="menuitem"] {
+  min-height: 44px;
+  display: inline-block;
+  padding: var(--ds-spacing-xs) var(--ds-spacing-sm);
+}
+
+/* Form controls */
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: 20px;
+  min-width: 20px;
+  cursor: pointer;
+}
+
+/* ============================================================================
+   RESPONSIVE SPACING
+   Adjust spacing based on viewport size
+   ============================================================================ */
+
+@media (min-width: 768px) {
+  /* Tablet: slightly more spacious */
+  html {
+    --ds-spacing-sm: 12px;
+    --ds-spacing-md: 20px;
+    --ds-spacing-lg: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Desktop: comfortable spacing */
+  html {
+    --ds-spacing-sm: 8px;
+    --ds-spacing-md: 16px;
+    --ds-spacing-lg: 24px;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE TYPOGRAPHY
+   Adjust font sizes based on viewport (already in typography.css)
+   ============================================================================ */
+
+/* ============================================================================
+   RESPONSIVE GRID & FLEXBOX UTILITIES
+   ============================================================================ */
+
+.flex-mobile-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-mobile-vertical {
+    flex-direction: row;
+  }
+}
+
+/* Two-column layout: stacked on mobile, side-by-side on tablet+ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ds-spacing-md);
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Three-column layout: stacked on mobile, 2 cols on tablet, 3 cols on desktop */
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ds-spacing-md);
+}
+
+@media (min-width: 768px) {
+  .grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* ============================================================================
+   PRINT STYLES
+   Ensure good readability when printed
+   ============================================================================ */
+
+@media print {
+  /* Hide navigation elements */
+  nav,
+  .navbar,
+  .sidebar,
+  .breadcrumb {
+    display: none;
+  }
+
+  /* Full width for printing */
+  body {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure readable colors for print */
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  /* Avoid page breaks in the middle of content */
+  h1,
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+
+  /* Preserve links in print */
+  a {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+   Respect user preference for reduced motion animations
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   HIGH CONTRAST MODE
+   Support Windows High Contrast Mode
+   ============================================================================ */
+
+@media (prefers-contrast: more) {
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #0000ee;
+    text-decoration: underline;
+  }
+
+  button,
+  [role="button"] {
+    border: 2px solid;
+  }
+}
+
+/* ============================================================================
+   DEVICE ORIENTATION
+   Adjust layout for portrait vs landscape
+   ============================================================================ */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Adjust vertical spacing for landscape mode with limited height */
+  .navbar {
+    padding: var(--ds-spacing-xs) var(--ds-spacing-sm);
+  }
+}
+
+/* ============================================================================
+   DARK COLOR SCHEME
+   Support for system dark mode preference
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  /* Dark mode preference - handled by [data-theme="dark"] selector in dark.css */
+}

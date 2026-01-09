@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"& ''.\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1'' -Json\")",
+      "Bash(powershell -Command \"& ''.\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1'' -Json\")",
+      "Bash(powershell -Command \"& ''.\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1'' -Json -RequireTasks -IncludeTasks\")",
+      "Bash(git fetch:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+# Node.js / Docusaurus
+node_modules/
+dist/
+build/
+.docusaurus/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.log
+.env*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.min.js
+.cache/
+coverage/
+
+# Python (for any helper scripts)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ROS 2 related
+*.egg-info/
+build/
+devel/
+install/
+log/

@@ -1,0 +1,210 @@
+/* Spacing System - Docusaurus UI Upgrade */
+/* Feature: 005-docusaurus-ui-upgrade */
+/* Date: 2026-01-09 */
+/* Base unit: 8px. All spacing follows this scale for visual consistency. */
+
+/* ============================================================================
+   SPACING UTILITY CLASSES
+   Use these classes to apply consistent spacing throughout components
+   ============================================================================ */
+
+/* Padding utilities */
+.p-0 {
+  padding: var(--ds-spacing-0);
+}
+
+.p-xs {
+  padding: var(--ds-spacing-xs);            /* 4px */
+}
+
+.p-sm {
+  padding: var(--ds-spacing-sm);            /* 8px */
+}
+
+.p-md {
+  padding: var(--ds-spacing-md);            /* 16px */
+}
+
+.p-lg {
+  padding: var(--ds-spacing-lg);            /* 24px */
+}
+
+.p-xl {
+  padding: var(--ds-spacing-xl);            /* 32px */
+}
+
+/* Padding vertical */
+.py-0 {
+  padding-top: var(--ds-spacing-0);
+  padding-bottom: var(--ds-spacing-0);
+}
+
+.py-xs {
+  padding-top: var(--ds-spacing-xs);
+  padding-bottom: var(--ds-spacing-xs);
+}
+
+.py-sm {
+  padding-top: var(--ds-spacing-sm);
+  padding-bottom: var(--ds-spacing-sm);
+}
+
+.py-md {
+  padding-top: var(--ds-spacing-md);
+  padding-bottom: var(--ds-spacing-md);
+}
+
+.py-lg {
+  padding-top: var(--ds-spacing-lg);
+  padding-bottom: var(--ds-spacing-lg);
+}
+
+.py-xl {
+  padding-top: var(--ds-spacing-xl);
+  padding-bottom: var(--ds-spacing-xl);
+}
+
+/* Padding horizontal */
+.px-0 {
+  padding-left: var(--ds-spacing-0);
+  padding-right: var(--ds-spacing-0);
+}
+
+.px-xs {
+  padding-left: var(--ds-spacing-xs);
+  padding-right: var(--ds-spacing-xs);
+}
+
+.px-sm {
+  padding-left: var(--ds-spacing-sm);
+  padding-right: var(--ds-spacing-sm);
+}
+
+.px-md {
+  padding-left: var(--ds-spacing-md);
+  padding-right: var(--ds-spacing-md);
+}
+
+.px-lg {
+  padding-left: var(--ds-spacing-lg);
+  padding-right: var(--ds-spacing-lg);
+}
+
+.px-xl {
+  padding-left: var(--ds-spacing-xl);
+  padding-right: var(--ds-spacing-xl);
+}
+
+/* Margin utilities */
+.m-0 {
+  margin: var(--ds-spacing-0);
+}
+
+.m-xs {
+  margin: var(--ds-spacing-xs);
+}
+
+.m-sm {
+  margin: var(--ds-spacing-sm);
+}
+
+.m-md {
+  margin: var(--ds-spacing-md);
+}
+
+.m-lg {
+  margin: var(--ds-spacing-lg);
+}
+
+.m-xl {
+  margin: var(--ds-spacing-xl);
+}
+
+/* Margin vertical */
+.my-0 {
+  margin-top: var(--ds-spacing-0);
+  margin-bottom: var(--ds-spacing-0);
+}
+
+.my-xs {
+  margin-top: var(--ds-spacing-xs);
+  margin-bottom: var(--ds-spacing-xs);
+}
+
+.my-sm {
+  margin-top: var(--ds-spacing-sm);
+  margin-bottom: var(--ds-spacing-sm);
+}
+
+.my-md {
+  margin-top: var(--ds-spacing-md);
+  margin-bottom: var(--ds-spacing-md);
+}
+
+.my-lg {
+  margin-top: var(--ds-spacing-lg);
+  margin-bottom: var(--ds-spacing-lg);
+}
+
+.my-xl {
+  margin-top: var(--ds-spacing-xl);
+  margin-bottom: var(--ds-spacing-xl);
+}
+
+/* Margin horizontal */
+.mx-0 {
+  margin-left: var(--ds-spacing-0);
+  margin-right: var(--ds-spacing-0);
+}
+
+.mx-xs {
+  margin-left: var(--ds-spacing-xs);
+  margin-right: var(--ds-spacing-xs);
+}
+
+.mx-sm {
+  margin-left: var(--ds-spacing-sm);
+  margin-right: var(--ds-spacing-sm);
+}
+
+.mx-md {
+  margin-left: var(--ds-spacing-md);
+  margin-right: var(--ds-spacing-md);
+}
+
+.mx-lg {
+  margin-left: var(--ds-spacing-lg);
+  margin-right: var(--ds-spacing-lg);
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Gap utilities (for flexbox/grid) */
+.gap-sm {
+  gap: var(--ds-spacing-sm);
+}
+
+.gap-md {
+  gap: var(--ds-spacing-md);
+}
+
+.gap-lg {
+  gap: var(--ds-spacing-lg);
+}
+
+.gap-xl {
+  gap: var(--ds-spacing-xl);
+}
+
+/* ============================================================================
+   SPACING NOTES
+
+   - All padding and margins should use these utility classes or CSS variables
+   - Never use magic numbers like `margin: 10px;` or `padding: 15px;`
+   - Always prefer var(--ds-spacing-*) for consistency
+   - Base unit is 8px - maintain multiples of this for visual rhythm
+
+   ============================================================================ */
