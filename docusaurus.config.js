@@ -1,6 +1,6 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'ROS 2 as the Robotic Nervous System for Humanoid Robots',
+  title: 'ROS 2 as the Robotic Nervous System for Humanoid Robots (Vercel)',
   tagline: 'Understanding middleware, communication patterns, and robot structure for humanoid robotics',
   favicon: 'img/favicon.ico',
 
