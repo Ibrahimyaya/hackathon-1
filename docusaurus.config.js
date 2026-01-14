@@ -66,15 +66,15 @@ const config = {
           items: [
             {
               label: 'Chapter 1: Foundations',
-              to: '/docs/part1-foundations/01-ros2-overview',
+              to: '/docs/part1-foundations/ros2-overview',
             },
             {
               label: 'Chapter 2: Communication',
-              to: '/docs/part2-communication/04-nodes-and-lifecycle',
+              to: '/docs/part2-communication/nodes-and-lifecycle',
             },
             {
               label: 'Chapter 3: Robot Structure',
-              to: '/docs/part3-robot-structure/09-urdf-fundamentals',
+              to: '/docs/part3-robot-structure/urdf-fundamentals',
             },
           ],
         },

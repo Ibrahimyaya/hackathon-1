@@ -20,7 +20,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Part 1: Foundations',
+      label: 'Part 1: Humanoid Control',
       items: [
         'part1-foundations/ros2-overview',
         'part1-foundations/dds-concepts',
@@ -29,7 +29,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Part 2: Communication Patterns',
+      label: 'Part 2: Perception & SLAM',
       items: [
         'part2-communication/nodes-and-lifecycle',
         'part2-communication/topics-pubsub',
@@ -40,7 +40,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Part 3: Robot Structure',
+      label: 'Part 3: Isaac Brain',
       items: [
         'part3-robot-structure/urdf-fundamentals',
         'part3-robot-structure/humanoid-urdf-example',
@@ -49,7 +49,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Part 4: Gazebo Simulation',
+      label: 'Part 4: Simulation & Control',
       items: [
         'part4-gazebo-simulation/gazebo-fundamentals',
         'part4-gazebo-simulation/physics-simulation',
@@ -61,9 +61,10 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Module 4: Vision-Language-Action (VLA)',
+      label: 'Module 4: Vision-Language-Action',
       items: [
         'module-4-vla/intro',
+        'module-4-vla/chapter-voice-recognition',
       ],
     },
     {

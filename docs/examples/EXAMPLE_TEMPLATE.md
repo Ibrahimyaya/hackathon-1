@@ -228,9 +228,8 @@ Link to official documentation that explains concepts used:
 Suggest where readers should go next:
 
 > **You've learned pub-sub communication!** Next, try:
-> - [Minimal Subscriber](./minimal-subscriber.py) to receive these messages
-> - [QoS Settings](./qos-settings.py) to understand reliability trade-offs
-> - [Chapter 2](../part2-communication/04-nodes-and-lifecycle.md) for more complex patterns
+> - [Chapter 2](../part2-communication/nodes-and-lifecycle.md) for more complex patterns
+> - [Services & Replies](../part2-communication/services-reqrep.md) for request-response patterns
 
 ---
 

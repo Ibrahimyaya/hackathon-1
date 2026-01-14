@@ -3,186 +3,279 @@ slug: /
 sidebar_position: 1
 ---
 
-# ROS 2 as the Robotic Nervous System for Humanoid Robots
-
-Welcome to a comprehensive guide to ROS 2 for humanoid robotics. This book teaches you how to build distributed, decoupled control systems for humanoid robots using ROS 2 middleware.
-
-## What You'll Learn
-
-This book is organized into three progressive parts that build upon each other:
-
-### **Part 1: Foundations** 📚
-Understand why ROS 2 is essential for humanoid robots and how DDS (Data Distribution Service) middleware enables reliable, distributed communication.
-
-- What ROS 2 is and its role as middleware
-- DDS concepts and Quality of Service (QoS) settings
-- Why loose coupling benefits distributed robotic systems
-- Real humanoid examples (IMU sensors, motor control)
-
-**Duration**: ~2 hours | **Outcomes**: Understand pub-sub architecture, node lifecycle, QoS effects
-
----
-
-### **Part 2: Communication Patterns** 🔌
-Master the core ROS 2 communication patterns (Topics, Services, Actions) through hands-on examples. Learn the agent/controller architecture for building humanoid controllers.
-
-- ROS 2 Nodes and their lifecycle
-- Topics for asynchronous publish-subscribe
-- Services for synchronous request-reply
-- Actions for long-running async tasks
-- Agent/controller pattern for humanoid control
-
-**Duration**: ~4 hours | **Outcomes**: Build working multi-node systems, implement realistic humanoid control flows
-
----
-
-### **Part 3: Robot Structure** 🤖
-Learn URDF (Unified Robot Description Format) as the standard way to describe robot structure. Write a complete humanoid URDF, load it in RViz and Gazebo, and simulate control.
-
-- URDF XML format and robot structure
-- Complete humanoid URDF with realistic joints and masses
-- Loading robots in RViz for visualization
-- Simulating control in Gazebo physics engine
-- Adapting examples for real hardware vs. simulation
-
-**Duration**: ~3 hours | **Outcomes**: Describe complete humanoid robot, simulate control flows, understand real hardware constraints
-
----
-
-## Target Audience
-
-- **AI students and developers** entering humanoid robotics
-- Developers with **intermediate Python** experience
-- Those comfortable with **object-oriented programming**
-- Readers ready to build **real working systems**
-
-This book assumes you understand Python; it does not teach Python syntax. It assumes you understand distributed systems concepts; it explains them in the ROS 2 context.
-
----
-
-## How to Use This Book
-
-### **Option 1: Learn from Start to Finish** ✅ Recommended
-1. Start with **Part 1: Foundations** to understand ROS 2 concepts
-2. Work through **Part 2: Communication Patterns** to build hands-on examples
-3. Complete **Part 3: Robot Structure** to simulate complete humanoid systems
-
-Each chapter is self-contained and includes working code examples you can run on your Ubuntu 22.04 LTS system. Every example is reproducible from start to finish.
-
-### **Option 2: Jump to a Specific Topic**
-- If you already understand ROS 2 basics, start with **Part 2**
-- If you only need URDF and simulation, start with **Part 3**
-- Each part includes setup instructions and references to foundational concepts
-
-### **Option 3: Run Examples in Parallel**
-Each chapter's code examples are independent and can be run on separate terminal windows. Follow the example READMEs in `docs/examples/` for step-by-step instructions.
-
----
-
-## Getting Started (30 minutes)
-
-### Prerequisites
-- Ubuntu 22.04 LTS (or later)
-- Basic terminal/shell experience
-- Python 3.10 or later
-- Intermediate Python programming knowledge
-
-### Quick Start
-1. **Follow the [Setup Guide](./setup-guide.md)** to install ROS 2 Humble and dependencies (~15 minutes)
-2. **Try the [Quickstart Example](./quickstart.md)** - write and run your first ROS 2 publisher node (~10 minutes)
-3. **Explore Part 1** to understand concepts behind what you just built
-
----
-
-## Key Features of This Book
-
-✅ **100% Reproducible** — Every code example runs on a clean Ubuntu 22.04 system without modification
-
-✅ **Officially Sourced** — All technical claims cite official ROS 2 documentation and DDS specifications
-
-✅ **Hands-On Learning** — 30+ working Python examples demonstrate every concept
-
-✅ **Humanoid-Focused** — Examples use humanoid robot scenarios: joint states, motor control, humanoid URDF
-
-✅ **Clear Progression** — Concepts → Hands-on Patterns → Complete Systems (Part 1 → 2 → 3)
-
-✅ **Real Hardware Ready** — Examples distinguish simulation-only features from real hardware
-
----
-
-## Technical Stack
-
-This book uses **official ROS 2 tools and libraries** to ensure long-term relevance:
-
-| Component | Tool | Version |
-|-----------|------|---------|
-| **ROS 2 Distribution** | Humble (LTS) | 2022.12+ |
-| **Python Client** | rclpy | 3.10+ |
-| **Robot Description** | URDF | Standard ROS 2 format |
-| **Visualization** | RViz2 | ROS 2 standard |
-| **Simulation** | Gazebo | ROS 2 compatible |
-| **OS** | Ubuntu | 22.04 LTS |
-
----
-
-## What This Book Does NOT Cover
-
-- ❌ Advanced motion planning (MoveIt)
-- ❌ Machine learning and perception
-- ❌ Hardware driver development
-- ❌ ROS 1 (previous version)
-- ❌ Non-humanoid robots
-
-These topics are out of scope but are documented with references to official resources.
-
----
-
-## Success Criteria
-
-By the end of this book, you will be able to:
-
-✅ Explain ROS 2 as middleware and understand why DDS enables distributed robotics
-
-✅ Build multi-node ROS 2 systems with Topics, Services, and Actions
-
-✅ Implement agent/controller patterns for humanoid control flows
-
-✅ Write complete URDF descriptions of humanoid robots
-
-✅ Load and control robots in RViz and Gazebo simulation
-
-✅ Understand how to adapt examples from simulation to real hardware
-
----
-
-## How to Navigate
-
-- **[Setup Guide](./setup-guide.md)** — Install ROS 2 Humble and dependencies
-- **[Quickstart](./quickstart.md)** — Run your first ROS 2 example in 30 minutes
-- **[Part 1: Foundations](./part1-foundations/01-ros2-overview)** — Learn ROS 2 and DDS concepts
-- **[Part 2: Communication](./part2-communication/04-nodes-and-lifecycle)** — Master communication patterns
-- **[Part 3: Robot Structure](./part3-robot-structure/09-urdf-fundamentals)** — Build humanoid robots
-- **[Glossary](./glossary.md)** — Terms and definitions
-- **[References](./references.md)** — Official documentation links
-- **[Known Issues](./known-issues.md)** — Debugging tips and workarounds
-
----
-
-## About This Book
-
-This book is written by Anthropic for AI students and developers learning humanoid robotics. It follows official ROS 2 documentation (Humble/Jazzy LTS releases) and is maintained on [GitHub](https://github.com/anthropics/ros2-humanoid-book).
-
-**Philosophy**: Start with concepts, practice with hands-on examples, integrate into complete systems. Every claim is traceable to official sources. Every example runs on clean systems without external services or proprietary tools.
-
----
-
-## Get Help
-
-- **Official ROS 2 Docs**: https://docs.ros.org/en/humble/
-- **ROS 2 Discourse**: https://discourse.ros.org/
-- **This Book's Issues**: https://github.com/anthropics/ros2-humanoid-book/issues
-- **Glossary & References**: See links in sidebar
-
----
-
-Ready? Start with [Setup Guide](./setup-guide.md) or jump to [Part 1: Foundations](./part1-foundations/01-ros2-overview).
+<div class="home-container">
+
+{/* ============================================================================
+   HERO SECTION
+   ============================================================================ */}
+
+<section class="hero-section">
+  <div class="hero-content">
+    <h1 class="hero-title">ROS 2 for Humanoid Robots</h1>
+    <p class="hero-subtitle">Learn distributed control systems with hands-on examples and complete humanoid robotics projects</p>
+    <div class="hero-cta">
+      <a href="./setup-guide" class="cta-button cta-primary">Get Started</a>
+      <a href="#modules" class="cta-button cta-secondary">Explore Modules</a>
+    </div>
+  </div>
+</section>
+
+{/* ============================================================================
+   MODULE CARDS SECTION
+   ============================================================================ */}
+
+<section class="modules-section" id="modules">
+  <h2 class="section-title">Four Modules. One Goal.</h2>
+  <p class="section-subtitle">Master ROS 2 from fundamentals to complete humanoid simulations</p>
+
+  <div class="modules-grid">
+    {/* Module 1 */}
+    <div class="module-card">
+      <div class="module-header module-1">
+        <div class="module-number">1</div>
+      </div>
+      <div class="module-body">
+        <h3 class="module-title">Humanoid Control</h3>
+        <p class="module-description">Understand ROS 2 as middleware and DDS concepts essential for distributed humanoid systems</p>
+        <ul class="module-topics">
+          <li>ROS 2 overview and architecture</li>
+          <li>DDS concepts and QoS settings</li>
+          <li>Why humanoids need distributed systems</li>
+        </ul>
+        <div class="module-meta">
+          <span class="module-duration">~2 hours</span>
+          <a href="./part1-foundations/ros2-overview" class="module-link">Start Module →</a>
+        </div>
+      </div>
+    </div>
+
+    {/* Module 2 */}
+    <div class="module-card">
+      <div class="module-header module-2">
+        <div class="module-number">2</div>
+      </div>
+      <div class="module-body">
+        <h3 class="module-title">Perception & SLAM</h3>
+        <p class="module-description">Master communication patterns with Topics, Services, and Actions for real humanoid control</p>
+        <ul class="module-topics">
+          <li>Nodes and lifecycle management</li>
+          <li>Topics, Services, and Actions</li>
+          <li>Agent/Controller architecture</li>
+        </ul>
+        <div class="module-meta">
+          <span class="module-duration">~4 hours</span>
+          <a href="./part2-communication/nodes-and-lifecycle" class="module-link">Start Module →</a>
+        </div>
+      </div>
+    </div>
+
+    {/* Module 3 */}
+    <div class="module-card">
+      <div class="module-header module-3">
+        <div class="module-number">3</div>
+      </div>
+      <div class="module-body">
+        <h3 class="module-title">Isaac Brain</h3>
+        <p class="module-description">Learn URDF to describe complete humanoid robots and visualize them in RViz</p>
+        <ul class="module-topics">
+          <li>URDF format and structure</li>
+          <li>Humanoid robot descriptions</li>
+          <li>RViz visualization</li>
+        </ul>
+        <div class="module-meta">
+          <span class="module-duration">~3 hours</span>
+          <a href="./part3-robot-structure/urdf-fundamentals" class="module-link">Start Module →</a>
+        </div>
+      </div>
+    </div>
+
+    {/* Module 4 */}
+    <div class="module-card">
+      <div class="module-header module-4">
+        <div class="module-number">4</div>
+      </div>
+      <div class="module-body">
+        <h3 class="module-title">Vision-Language-Action</h3>
+        <p class="module-description">Simulate humanoid robots with physics and sensors using Gazebo and ROS 2</p>
+        <ul class="module-topics">
+          <li>Gazebo physics simulation</li>
+          <li>Sensor integration</li>
+          <li>Complete control simulation</li>
+        </ul>
+        <div class="module-meta">
+          <span class="module-duration">~5 hours</span>
+          <a href="./part4-gazebo-simulation/gazebo-fundamentals" class="module-link">Start Module →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* ============================================================================
+   QUICK START SECTION
+   ============================================================================ */}
+
+<section class="quickstart-section">
+  <h2 class="section-title">Get Started in 30 Minutes</h2>
+
+  <div class="quickstart-grid">
+    <div class="quickstart-card">
+      <div class="step-number">1</div>
+      <h3>Setup Environment</h3>
+      <p>Install ROS 2 Humble and dependencies following our setup guide</p>
+      <a href="./setup-guide" class="card-link">View Setup Guide</a>
+    </div>
+
+    <div class="quickstart-card">
+      <div class="step-number">2</div>
+      <h3>Run First Example</h3>
+      <p>Write and run your first ROS 2 publisher node in 10 minutes</p>
+      <a href="./quickstart" class="card-link">Try Quickstart</a>
+    </div>
+
+    <div class="quickstart-card">
+      <div class="step-number">3</div>
+      <h3>Explore Foundations</h3>
+      <p>Learn ROS 2 concepts with hands-on examples and humanoid scenarios</p>
+      <a href="./part1-foundations/ros2-overview" class="card-link">Start Learning</a>
+    </div>
+  </div>
+</section>
+
+{/* ============================================================================
+   LEARNING PATH SECTION
+   ============================================================================ */}
+
+<section class="learning-path-section">
+  <h2 class="section-title">Your Learning Journey</h2>
+
+  <div class="learning-path">
+    <div class="path-step">
+      <div class="path-number">Foundation</div>
+      <p>Understand ROS 2 concepts, middleware, and why humanoids use distributed systems</p>
+    </div>
+
+    <div class="path-arrow">→</div>
+
+    <div class="path-step">
+      <div class="path-number">Practice</div>
+      <p>Build multi-node systems with Topics, Services, and Actions patterns</p>
+    </div>
+
+    <div class="path-arrow">→</div>
+
+    <div class="path-step">
+      <div class="path-number">Integration</div>
+      <p>Describe humanoid robots with URDF and simulate complete control systems</p>
+    </div>
+  </div>
+</section>
+
+{/* ============================================================================
+   KEY FEATURES SECTION
+   ============================================================================ */}
+
+<section class="features-section">
+  <h2 class="section-title">Why Learn From This Book</h2>
+
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">✓</div>
+      <h3>100% Reproducible</h3>
+      <p>Every code example runs on clean Ubuntu 22.04 without modification</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">✓</div>
+      <h3>Officially Sourced</h3>
+      <p>All claims cite ROS 2 docs and DDS specifications</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">✓</div>
+      <h3>Hands-On Learning</h3>
+      <p>30+ working Python examples you can run immediately</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">✓</div>
+      <h3>Humanoid-Focused</h3>
+      <p>Real scenarios: joint states, motor control, humanoid URDF</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">✓</div>
+      <h3>Clear Progression</h3>
+      <p>Concepts → Patterns → Complete Systems (Part 1 → 2 → 3 → 4)</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">✓</div>
+      <h3>Hardware Ready</h3>
+      <p>Learn what works in simulation and what requires real hardware</p>
+    </div>
+  </div>
+</section>
+
+{/* ============================================================================
+   TARGET AUDIENCE SECTION
+   ============================================================================ */}
+
+<section class="audience-section">
+  <h2 class="section-title">Who Should Learn This?</h2>
+
+  <div class="audience-grid">
+    <div class="audience-item">
+      <h3>AI & ML Engineers</h3>
+      <p>Building vision and language models for humanoid robots</p>
+    </div>
+
+    <div class="audience-item">
+      <h3>Robotics Developers</h3>
+      <p>With intermediate Python skills and distributed systems knowledge</p>
+    </div>
+
+    <div class="audience-item">
+      <h3>Students</h3>
+      <p>Learning robotics from scratch with hands-on projects</p>
+    </div>
+
+    <div class="audience-item">
+      <h3>System Architects</h3>
+      <p>Designing control architectures for complex humanoid systems</p>
+    </div>
+  </div>
+</section>
+
+{/* ============================================================================
+   TECH STACK SECTION
+   ============================================================================ */}
+
+<section class="tech-section">
+  <h2 class="section-title">Tech Stack</h2>
+
+  <div class="tech-stack">
+    | **Component** | **Tool** | **Version** |
+    |---|---|---|
+    | **ROS 2** | Humble (LTS) | 2022.12+ |
+    | **Python** | rclpy | 3.10+ |
+    | **Robotics** | URDF, RViz2, Gazebo | Standard |
+    | **OS** | Ubuntu | 22.04 LTS |
+  </div>
+</section>
+
+{/* ============================================================================
+   CTA SECTION
+   ============================================================================ */}
+
+<section class="final-cta-section">
+  <h2>Ready to Build Humanoid Robots?</h2>
+  <p>Start learning ROS 2 with real hands-on examples</p>
+
+  <div class="final-cta">
+    <a href="./setup-guide" class="cta-button cta-primary">Start Learning</a>
+    <a href="https://github.com/anthropics/ros2-humanoid-book" class="cta-button cta-secondary">View on GitHub</a>
+  </div>
+</section>
+
+</div>
