@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "rm -rf .docusaurus build node_modules/.cache && npm run build",
   "outputDirectory": "build",
   "redirects": [
     {
