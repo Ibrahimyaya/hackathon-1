@@ -4,7 +4,7 @@ const config = {
   tagline: 'Understanding middleware, communication patterns, and robot structure for humanoid robotics',
   favicon: 'img/favicon.ico',
 
-  url: 'https://hackathon-1st.vercel.app',
+  url: 'https://hackathon-1st-rosy.vercel.app',
   baseUrl: '/',
   trailingSlash: false,
 
