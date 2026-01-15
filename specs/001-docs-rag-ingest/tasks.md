@@ -1,425 +1,340 @@
-# Implementation Tasks: Deploy Documentation to Vector Database for RAG
+# Tasks: Deploy Documentation to Vector Database for RAG
 
 **Feature Branch**: `001-docs-rag-ingest`
 **Status**: Ready for implementation
-**Plan Reference**: [plan.md](plan.md)
-**Spec Reference**: [spec.md](spec.md)
+**Spec**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md)
 
 ---
 
-## Task Execution Order & Dependencies
+## Executive Summary
 
-Tasks are grouped by implementation phase. **Each task is independently testable** — completion of a task should result in runnable, tested code even if subsequent phases are incomplete.
+- **Total Tasks**: 26 tasks across 6 phases
+- **Estimated Effort**: 9–10 hours
+- **Critical Path**: Phase 1 → Phase 2 → Phase 3 (US1) → Phase 4 (US2) → Phase 5 (US3) → Phase 6 (US4)
+- **MVP Scope**: User Story 1 (Crawl & Extract) = Phase 1 + Phase 2 + Phase 3 (minimal viable)
+- **Parallelization**: US2, US3 can run in parallel after Phase 2 completes
 
-**Critical Path**: Task 1.1 → Task 1.2 → Task 2.1 → Task 2.2 → Task 2.3 → Task 3.1 → Task 3.2 → Task 3.3 → Task 4.1 → Task 4.2 → Task 5.1 → Task 5.2
+### User Stories Mapped to Phases
 
----
-
-## Phase 1: Core Infrastructure
-
-### Task 1.1: Initialize Python Project with uv
-
-**Objective**: Set up project structure, initialize `uv` package manager, and define all dependencies.
-
-**Acceptance Criteria**:
-- [ ] `backend/` directory exists with proper Python package structure
-- [ ] `pyproject.toml` specifies Python 3.11+, lists all required dependencies
-- [ ] `.env.example` template includes all 13+ configuration variables with descriptions
-- [ ] `uv sync` or `uv install` successfully installs all dependencies without errors
-- [ ] No import errors when running `python -c "import requests; import pydantic; import qdrant_client; import cohere"`
-
-**Files to Create**:
-- `backend/pyproject.toml` — Project config with dependencies
-- `backend/.env.example` — Environment variable template
-- `backend/.gitignore` — Python-specific ignores (venv/, __pycache__/, *.pyc, .env, .DS_Store)
-- `backend/README.md` — Quick setup guide
-
-**Dependencies**:
-- None (bootstrap task)
-
-**Test Strategy**:
-- Manual: Run `uv sync` and verify no errors
-- Verify imports work: `python -c "import requests; import pydantic; import qdrant_client; import cohere"`
-
-**Estimated Effort**: 30 minutes
+| User Story | Priority | Phase | Description |
+|------------|----------|-------|-------------|
+| US1: Crawl & Extract | P1 | Phase 3 | Discover and extract documentation from Docusaurus sites |
+| US2: Chunk & Embed | P1 | Phase 4 | Split text into chunks and generate embeddings via Cohere |
+| US3: Store & Index | P1 | Phase 5 | Persist embeddings in Qdrant and implement similarity search |
+| US4: Validate Pipeline | P2 | Phase 6 | End-to-end validation and test query execution |
 
 ---
 
-### Task 1.2: Implement Configuration & Logging Foundation
+## Phase 1: Setup & Project Initialization
 
-**Objective**: Create reusable configuration loading, logging setup, and custom exception hierarchy.
+**Goal**: Initialize Python project structure with `uv`, dependencies, and configuration management.
+**Duration**: 30 minutes
+**Blocking**: All subsequent phases
 
-**Acceptance Criteria**:
-- [ ] `utils/config.py` loads all .env variables with type validation (pydantic)
+### Checklist
+
+- [ ] T001 Create backend/ directory structure and initialize pyproject.toml with uv configuration
+- [ ] T002 Create .env.example template with all 13+ configuration variables with descriptions
+- [ ] T003 Create backend/.gitignore with Python-specific patterns (venv/, __pycache__/, *.pyc, .env, .DS_Store)
+- [ ] T004 Create backend/README.md with quick setup guide and prerequisites
+
+**Success Criteria**:
+- [ ] `uv sync` or `uv install` installs all dependencies without errors
+- [ ] No import errors: `python -c "import requests; import pydantic; import qdrant_client; import cohere"`
+- [ ] All environment variables documented in .env.example with descriptions
+
+---
+
+## Phase 2: Foundational Infrastructure
+
+**Goal**: Establish config loading, logging, error handling, and data models used by all pipeline stages.
+**Duration**: 45 minutes
+**Blocking**: All user story phases
+
+### Checklist
+
+- [ ] T005 Implement utils/config.py with pydantic Config class for environment variable validation
+- [ ] T006 Implement utils/logging.py with structured JSON logging (toggle via LOG_FORMAT env var)
+- [ ] T007 Implement utils/errors.py with exception hierarchy (IngestionError, CrawlError, ProcessingError, ChunkingError, EmbeddingError, StorageError)
+- [ ] T008 Create ingestion/models.py with DocumentChunk and Embedding dataclasses
+- [ ] T009 Create backend/tests/conftest.py with pytest fixtures for config, logging, mocked APIs
+- [ ] T010 Create backend/tests/unit/test_config.py: validate config loading, missing vars raise clear errors
+- [ ] T011 Create backend/tests/unit/test_errors.py: test exception hierarchy and error messages
+
+**Success Criteria**:
 - [ ] Missing required variables raise clear error with guidance
-- [ ] `utils/logging.py` sets up structured JSON logging (or human-readable for development)
-- [ ] `utils/errors.py` defines exception hierarchy (IngestionError with 8+ subclasses per plan)
-- [ ] Unit tests pass: test_config validates loading and error cases
-- [ ] Unit tests pass: test_logging validates format and output
-- [ ] Logging can be toggled between JSON and human via `LOG_FORMAT` env var
-
-**Files to Create**:
-- `backend/ingestion/__init__.py` — Package marker
-- `backend/utils/__init__.py` — Package marker
-- `backend/utils/config.py` — Config loader with pydantic
-- `backend/utils/logging.py` — Logging setup
-- `backend/utils/errors.py` — Exception hierarchy
-- `backend/tests/__init__.py` — Tests package marker
-- `backend/tests/unit/__init__.py`
-- `backend/tests/conftest.py` — pytest fixtures
-- `backend/tests/unit/test_config.py` — Config tests
-- `backend/tests/unit/test_errors.py` — Error hierarchy tests (basic)
-
-**Dependencies**:
-- Task 1.1 (pyproject.toml, dependencies installed)
-
-**Test Strategy**:
-- Unit tests with pytest; test config loading, validation, and error cases
-- Test logging output format
-
-**Estimated Effort**: 45 minutes
+- [ ] Logging output can toggle between JSON and human-readable
+- [ ] All tests pass: `pytest backend/tests/unit/`
+- [ ] Config loaded successfully in test environment
 
 ---
 
-## Phase 2: Crawling & Text Extraction
+## Phase 3: User Story 1 - Crawl and Index Documentation Site (P1)
 
-### Task 2.1: Implement Docusaurus Crawler
+**Goal**: Discover and extract all public pages from a Docusaurus documentation site.
+**Duration**: 1.5 hours
+**Dependencies**: Phase 1, Phase 2
+**Independent Test**: Execute crawler on Docusaurus site; verify >95% page discovery and extract clean text.
 
-**Objective**: Build crawler that discovers and fetches all public pages from a Docusaurus documentation site.
+### Checklist
 
-**Acceptance Criteria**:
-- [ ] `ingestion/crawlers/docusaurus_crawler.py` exports `DocusaurusCrawler` class with `crawl(url, max_pages)` method
-- [ ] Crawler discovers pages via sitemap.xml (if available) or BFS from root URL
-- [ ] Crawler fetches HTML with proper User-Agent and timeout (configurable)
-- [ ] Returns list of (url, html_content) tuples for all discovered pages
-- [ ] Handles network errors gracefully: retries transient errors (3x with exponential backoff), logs and skips permanent failures
-- [ ] Logs progress: pages discovered, pages fetched, failed URLs, total duration
-- [ ] Unit tests pass: test with mocked HTTP responses (mock requests library)
-- [ ] Integration test passes: crawl real Docusaurus site (e.g., docs.docusaurus.io); validate >95% discovery
+- [ ] T012 [P] [US1] Create ingestion/crawlers/docusaurus_crawler.py: Implement DocusaurusCrawler class with crawl(url, max_pages) method
+- [ ] T013 [US1] Implement crawler to discover pages via sitemap.xml or breadth-first search
+- [ ] T014 [US1] Implement crawl retry logic: exponential backoff (3x) for transient errors, skip permanent failures
+- [ ] T015 [US1] Implement crawl logging: progress (pages discovered, fetched), errors, total duration
+- [ ] T016 [P] [US1] Create ingestion/processors/text_cleaner.py: Implement TextCleaner class with extract_text(html, url) method
+- [ ] T017 [US1] Implement HTML-to-text extraction: remove boilerplate, preserve structure (headings, code, lists)
+- [ ] T018 [US1] Implement text cleaning: normalize whitespace, handle special characters, preserve metadata (URL, section hierarchy)
+- [ ] T019 [P] [US1] Create backend/tests/unit/test_docusaurus_crawler.py: Unit tests with mocked HTTP responses
+- [ ] T020 [US1] Create backend/tests/unit/test_text_cleaner.py: Unit tests with sample HTML (various styles)
+- [ ] T021 [US1] Create backend/main.py: Implement crawl_and_extract() function that wires crawler → processor
+- [ ] T022 [US1] Update backend/main.py: Add logging of extracted text stats (URLs, character counts, errors)
+- [ ] T023 [P] [US1] Create backend/tests/integration/test_crawl_to_extract.py: End-to-end test on sample Docusaurus site
 
-**Files to Create**:
-- `backend/ingestion/crawlers/__init__.py`
-- `backend/ingestion/crawlers/docusaurus_crawler.py` — Crawler class
-- `backend/tests/unit/test_docusaurus_crawler.py` — Unit tests with mocks
-- `backend/tests/integration/test_crawl_integration.py` — Integration test
-
-**Dependencies**:
-- Task 1.1 (requests, beautifulsoup4 installed)
-- Task 1.2 (config, logging, errors available)
-
-**Test Strategy**:
-- Unit: Mock HTTP responses; test discovery logic, retry logic, error handling
-- Integration: Crawl a real Docusaurus site; verify page count >95% of expected
-
-**Estimated Effort**: 1 hour
+**Success Criteria - US1**:
+- [ ] >95% of public pages discovered
+- [ ] >90% of original content preserved in text extraction
+- [ ] All tests pass: `pytest backend/tests/unit/test_docusaurus_crawler.py backend/tests/unit/test_text_cleaner.py`
+- [ ] Integration test passes: crawl and extract real documentation
+- [ ] No unhandled exceptions during crawl
 
 ---
 
-### Task 2.2: Implement HTML-to-Text Extractor
+## Phase 4: User Story 2 - Chunk Text and Generate Embeddings (P1)
 
-**Objective**: Clean HTML pages and extract main content text, preserving structure and metadata.
+**Goal**: Split extracted text into semantically meaningful chunks and generate embeddings via Cohere.
+**Duration**: 1.5 hours
+**Dependencies**: Phase 1, Phase 2, Phase 3 (for text input)
+**Independent Test**: Chunk sample text, generate embeddings, validate token counts and semantic similarity.
+**Parallel Opportunity**: Can start T024–T028 immediately after Phase 2 (no US1 dependency for units tests with mocks).
 
-**Acceptance Criteria**:
-- [ ] `ingestion/processors/text_cleaner.py` exports `TextCleaner` class with `extract_text(html, url)` method
-- [ ] Removes navigation boilerplate (sidebars, headers, footers) using BeautifulSoup + heuristics
-- [ ] Extracts main content and preserves structure: headings, code blocks, lists, paragraphs
-- [ ] Returns dict with keys: `text` (cleaned), `url`, `section_hierarchy` (breadcrumb), `metadata`
-- [ ] Handles malformed HTML gracefully (no crashes)
-- [ ] Text is readable and >90% of original content preserved (manual spot check)
-- [ ] Unit tests pass: test with sample HTML snippets (various styles)
-- [ ] Integration test passes: extract text from crawled pages, spot-check readability
+### Checklist
 
-**Files to Create**:
-- `backend/ingestion/processors/__init__.py`
-- `backend/ingestion/processors/text_cleaner.py` — Text extractor
-- `backend/tests/unit/test_text_cleaner.py` — Unit tests with HTML samples
-- `backend/tests/integration/test_extract_integration.py` — Integration test (optional: use crawled pages)
+- [ ] T024 [P] [US2] Create ingestion/chunking/text_chunker.py: Implement TextChunker class with chunk(text, metadata) method
+- [ ] T025 [US2] Implement text chunking: split at logical boundaries (paragraphs, section headers)
+- [ ] T026 [US2] Implement token counting using tiktoken; ensure chunks respect CHUNK_MIN_TOKENS and CHUNK_MAX_TOKENS config
+- [ ] T027 [US2] Implement DocumentChunk creation with metadata: id, text, source_url, section, chunk_index, token_count
+- [ ] T028 [P] [US2] Create ingestion/embeddings/cohere_embedder.py: Implement CohereEmbedder class with embed(chunks) method
+- [ ] T029 [US2] Implement Cohere API batching: up to COHERE_BATCH_SIZE (default 100) chunks per request
+- [ ] T030 [US2] Implement error handling: rate limits (backoff), quota exceeded (pause and report), network errors (retry)
+- [ ] T031 [US2] Implement embedding logging: total chunks, successful, failed, latency per batch
+- [ ] T032 [P] [US2] Create backend/tests/unit/test_text_chunker.py: Unit tests with sample text (prose, code, mixed)
+- [ ] T033 [US2] Create backend/tests/unit/test_cohere_embedder.py: Unit tests with mocked Cohere API responses
+- [ ] T034 [US2] Update backend/main.py: Implement chunk_and_embed() function that wires chunker → embedder
+- [ ] T035 [US2] Update backend/main.py: Add logging of chunking/embedding stats (total chunks, tokens, latency)
+- [ ] T036 [P] [US2] Create backend/tests/integration/test_chunk_embed_integration.py: End-to-end test with extracted text
 
-**Dependencies**:
-- Task 1.1 (beautifulsoup4 installed)
-- Task 1.2 (config, logging available)
-
-**Test Strategy**:
-- Unit: Test with various HTML structures (blog, API docs, wiki style)
-- Integration: Extract text from real pages; review samples manually for quality
-
-**Estimated Effort**: 1 hour
-
----
-
-### Task 2.3: Integrate Crawler & Extractor into Pipeline
-
-**Objective**: Wire crawling and extraction stages into `main.py` and verify end-to-end text extraction.
-
-**Acceptance Criteria**:
-- [ ] `backend/main.py` has `crawl_and_extract()` function that:
-  - Loads `DOCS_URL` and `CRAWL_MAX_PAGES` from config
-  - Calls `DocusaurusCrawler.crawl()` to get pages
-  - Calls `TextCleaner.extract_text()` on each page
-  - Returns list of extracted text with metadata
-- [ ] Logs progress: pages crawled, pages extracted, errors, total time
-- [ ] Logs summary stats: total text characters, average text per page
-- [ ] Integration test passes: full crawl → extract on sample site
-- [ ] Can be run via `python main.py --crawl-extract` (argument parsing in main)
-
-**Files to Modify/Create**:
-- `backend/main.py` — Add crawl_and_extract() function and arg parsing
-- `backend/tests/integration/test_crawl_to_extract.py` — End-to-end test
-
-**Dependencies**:
-- Task 2.1 (crawler implemented)
-- Task 2.2 (extractor implemented)
-
-**Test Strategy**:
-- Integration: Run full pipeline on sample docs; verify output structure and content quality
-
-**Estimated Effort**: 30 minutes
+**Success Criteria - US2**:
+- [ ] >95% of chunks within configured token limits (256–512)
+- [ ] Chunk boundaries are logical (not mid-sentence or mid-code block)
+- [ ] All chunks receive embeddings or failures are logged
+- [ ] All tests pass: `pytest backend/tests/unit/test_text_chunker.py backend/tests/unit/test_cohere_embedder.py`
+- [ ] Integration test passes: extract → chunk → embed real documentation
 
 ---
 
-## Phase 3: Chunking & Embedding
+## Phase 5: User Story 3 - Store and Index Embeddings in Vector Database (P1)
 
-### Task 3.1: Implement Text Chunking
+**Goal**: Persist embeddings and metadata in Qdrant with efficient similarity search.
+**Duration**: 1.5 hours
+**Dependencies**: Phase 1, Phase 2, Phase 4 (for embeddings)
+**Independent Test**: Store embeddings in Qdrant, execute similarity search queries, validate relevance.
+**Parallel Opportunity**: Can start T037–T041 immediately after Phase 2 (no US2 dependency for unit tests with mocks).
 
-**Objective**: Split extracted text into semantically meaningful chunks with token-aware sizing.
+### Checklist
 
-**Acceptance Criteria**:
-- [ ] `ingestion/chunking/text_chunker.py` exports `TextChunker` class with `chunk(text, metadata)` method
-- [ ] `ingestion/models.py` defines `DocumentChunk` dataclass with fields: id, text, source_url, section, chunk_index, token_count
-- [ ] Chunks are split at logical boundaries (paragraph breaks, section headers)
-- [ ] Token counting using tiktoken (estimate for embedding model)
-- [ ] Respects `CHUNK_MIN_TOKENS` and `CHUNK_MAX_TOKENS` config (default 256–512)
-- [ ] Returns list of DocumentChunk objects with sequential chunk_index per source
-- [ ] Unit tests pass: test chunking with various text samples (prose, code, mixed)
-- [ ] >95% of chunks within configured token limits
-- [ ] Chunk boundaries are logical (not mid-sentence, mid-code block)
+- [ ] T037 [P] [US3] Create ingestion/storage/qdrant_store.py: Implement QdrantStore class with __init__, upsert(), search() methods
+- [ ] T038 [US3] Implement Qdrant collection initialization: correct schema (vector dimension 1024, indexed metadata fields)
+- [ ] T039 [US3] Implement batch upsert: insert embeddings with payload (text, url, section, position, token_count)
+- [ ] T040 [US3] Implement similarity search: return top-k results with scores and metadata
+- [ ] T041 [US3] Implement error handling: connection failures, collection errors, query failures with clear logging
+- [ ] T042 [P] [US3] Create backend/tests/unit/test_qdrant_store.py: Unit tests with mocked Qdrant client
+- [ ] T043 [US3] Update backend/main.py: Implement ingest_pipeline() function that wires crawler → chunker → embedder → storage
+- [ ] T044 [US3] Update backend/main.py: Add logging of storage stats (total chunks upserted, query latencies)
+- [ ] T045 [P] [US3] Create backend/tests/integration/test_qdrant_integration.py: End-to-end test with Qdrant Cloud/Docker
 
-**Files to Create**:
-- `backend/ingestion/models.py` — DocumentChunk, Embedding data classes
-- `backend/ingestion/chunking/__init__.py`
-- `backend/ingestion/chunking/text_chunker.py` — Chunking logic
-- `backend/tests/unit/test_text_chunker.py` — Unit tests
-- `backend/tests/unit/test_models.py` — Model validation tests
-
-**Dependencies**:
-- Task 1.1 (tiktoken installed)
-- Task 1.2 (config, logging available)
-
-**Test Strategy**:
-- Unit: Test with prose, code, mixed content; verify token counts and chunk boundaries
-
-**Estimated Effort**: 1 hour
+**Success Criteria - US3**:
+- [ ] All embeddings successfully stored in Qdrant
+- [ ] Similarity search returns top-k results within 100ms
+- [ ] Returned results are topically relevant to queries
+- [ ] All tests pass: `pytest backend/tests/unit/test_qdrant_store.py`
+- [ ] Integration test passes: store real embeddings, execute queries
 
 ---
 
-### Task 3.2: Implement Cohere Embeddings Client
+## Phase 6: User Story 4 - Validate End-to-End Pipeline (P2)
 
-**Objective**: Wrap Cohere API to batch-generate embeddings for text chunks.
+**Goal**: Validate full pipeline (crawl → chunk → embed → store) with test queries and reporting.
+**Duration**: 1.5 hours
+**Dependencies**: Phase 1–5 (all prior phases)
+**Independent Test**: Run full pipeline on sample docs, execute test queries, verify results are relevant.
 
-**Acceptance Criteria**:
-- [ ] `ingestion/embeddings/cohere_embedder.py` exports `CohereEmbedder` class with `embed(chunks)` method
-- [ ] Takes list of DocumentChunks; returns list of Embedding objects (with vector, chunk_id, metadata)
-- [ ] Batches requests: up to `COHERE_BATCH_SIZE` (default 100) chunks per API call
-- [ ] Handles Cohere API errors: rate limit (backoff), quota exceeded (pause and report), network errors (retry)
-- [ ] Logs embedding stats: total chunks, successful, failed, latency per batch
-- [ ] Vector dimension is 1024 (embed-english-v3.0 model)
-- [ ] Unit tests pass: mock Cohere responses, test batching and error handling
-- [ ] All chunks receive embeddings or failures are logged (no silent drops)
+### Checklist
 
-**Files to Create**:
-- `backend/ingestion/embeddings/__init__.py`
-- `backend/ingestion/embeddings/cohere_embedder.py` — Cohere client
-- `backend/tests/unit/test_cohere_embedder.py` — Unit tests with mocks
+- [ ] T046 [US4] Update backend/main.py: Implement full main() function with config validation (Cohere key, Qdrant connectivity)
+- [ ] T047 [US4] Implement prerequisite checks: Cohere API key validation, Qdrant connectivity test, target URL reachability
+- [ ] T048 [US4] Implement top-level exception handler: log context (stage, URL, chunk ID), report summary stats, exit with proper code
+- [ ] T049 [US4] Implement pipeline summary reporting: pages crawled, chunks created, embeddings generated, documents stored, failures
+- [ ] T050 [US4] Update backend/main.py: Implement test_queries() function with pre-defined test queries (e.g., "How to install?", "Configuration")
+- [ ] T051 [US4] Implement test query execution: generate embeddings for queries, search Qdrant, display top-3 results with scores
+- [ ] T052 [US4] Implement CLI argument parsing: --crawl-extract, --chunk-embed, --ingest, --test-queries, --full-pipeline
+- [ ] T053 [US4] Create backend/tests/integration/test_full_pipeline.py: End-to-end test with all stages, validates complete flow
+- [ ] T054 [P] [US4] Create backend/tests/integration/test_queries.py: Test query execution, verify >80% of queries return relevant results
 
-**Dependencies**:
-- Task 1.1 (cohere-python installed)
-- Task 1.2 (config, logging, errors available)
-- Task 3.1 (DocumentChunk, Embedding models)
-
-**Test Strategy**:
-- Unit: Mock Cohere API; test batching, error handling (rate limit, quota, network)
-
-**Estimated Effort**: 1 hour
+**Success Criteria - US4**:
+- [ ] Full pipeline executes without unhandled exceptions
+- [ ] Summary statistics are comprehensive and accurate
+- [ ] Test queries return relevant results in top-5
+- [ ] All prerequisites are validated before pipeline starts
+- [ ] All tests pass: `pytest backend/tests/integration/test_full_pipeline.py backend/tests/integration/test_queries.py`
+- [ ] Exit codes are correct (0 on success, non-zero on failure)
 
 ---
 
-### Task 3.3: Integrate Chunking & Embedding Pipeline
+## Dependencies & Parallel Execution
 
-**Objective**: Wire chunking and embedding into full pipeline and test end-to-end.
+### Critical Path (Sequential)
 
-**Acceptance Criteria**:
-- [ ] `backend/main.py` has `chunk_and_embed()` function that:
-  - Takes extracted texts from `crawl_and_extract()`
-  - Calls `TextChunker.chunk()` on each text
-  - Calls `CohereEmbedder.embed()` on all chunks
-  - Returns list of embeddings with metadata
-- [ ] Logs progress: chunks created, embedding stats, total time
-- [ ] Summary stats: total chunks, tokens, embedding latency
-- [ ] Can be run via `python main.py --chunk-embed` (with crawl/extract data cached or piped)
-- [ ] Integration test passes: extract → chunk → embed on sample docs
+```
+T001–T004 (Phase 1) → T005–T011 (Phase 2) → T012–T023 (Phase 3: US1)
+                                         ├→ T024–T036 (Phase 4: US2) [Can start after Phase 2]
+                                         ├→ T037–T045 (Phase 5: US3) [Can start after Phase 2]
+                                         └→ T046–T054 (Phase 6: US4) [Requires Phases 3–5]
+```
 
-**Files to Modify/Create**:
-- `backend/main.py` — Add chunk_and_embed() function
-- `backend/tests/integration/test_chunk_embed_integration.py` — End-to-end test
+### Parallelization Opportunities
 
-**Dependencies**:
-- Task 3.1 (chunker implemented)
-- Task 3.2 (embedder implemented)
-- Task 2.3 (crawl/extract working)
+**After Phase 2 is complete**, you can work on US2, US3 in parallel:
+- Task T024–T036 (US2 chunking & embedding) [P] tasks can run in parallel with P tasks from other US
+- Task T037–T045 (US3 storage) [P] tasks can run in parallel with P tasks from other US
 
-**Test Strategy**:
-- Integration: Extract sample docs, chunk, embed; verify output structure and embedding dimensions
+**Example parallel execution**:
+```bash
+# Terminal 1: US1 Phase 3
+pytest backend/tests/unit/test_docusaurus_crawler.py
+pytest backend/tests/unit/test_text_cleaner.py
 
-**Estimated Effort**: 30 minutes
+# Terminal 2 (simultaneous): US2 unit tests
+pytest backend/tests/unit/test_text_chunker.py
 
----
-
-## Phase 4: Storage & Retrieval
-
-### Task 4.1: Implement Qdrant Storage & Search
-
-**Objective**: Store embeddings and metadata in Qdrant, implement similarity search.
-
-**Acceptance Criteria**:
-- [ ] `ingestion/storage/qdrant_store.py` exports `QdrantStore` class with:
-  - `__init__(config)` — connects to Qdrant, creates/validates collection
-  - `upsert(embeddings)` — batch-inserts embeddings with payload (text, url, section, etc.)
-  - `search(query_embedding, k=5)` — returns top-k similar chunks with scores
-- [ ] Collection has correct schema: vector dimension 1024, indexed metadata fields (url, section)
-- [ ] Handles Qdrant errors: connection failures, collection errors, query failures
-- [ ] Logs storage stats: chunks upserted, query latencies
-- [ ] Unit tests pass: mock Qdrant, test upsert and search logic
-- [ ] Integration test passes: store real embeddings, execute test queries
-
-**Files to Create**:
-- `backend/ingestion/storage/__init__.py`
-- `backend/ingestion/storage/qdrant_store.py` — Qdrant client
-- `backend/tests/unit/test_qdrant_store.py` — Unit tests with mocks
-- `backend/tests/integration/test_qdrant_integration.py` — Integration test (requires live Qdrant)
-
-**Dependencies**:
-- Task 1.1 (qdrant-client installed)
-- Task 1.2 (config, logging, errors available)
-- Task 3.1 (Embedding model)
-
-**Test Strategy**:
-- Unit: Mock Qdrant; test collection creation, upsert, search
-- Integration: Use Qdrant Cloud or local Docker instance; store real embeddings, execute queries
-
-**Estimated Effort**: 1.5 hours
+# Terminal 3 (simultaneous): US3 unit tests
+pytest backend/tests/unit/test_qdrant_store.py
+```
 
 ---
 
-### Task 4.2: Integrate Storage into Full Pipeline
+## Implementation Strategy
 
-**Objective**: Complete end-to-end pipeline: crawl → chunk → embed → store.
+### MVP (Minimum Viable Product)
+**Scope**: User Story 1 only (crawl & extract)
+**Tasks**: T001–T023 (Phase 1–3)
+**Duration**: ~2 hours
+**Value**: Developers can crawl Docusaurus sites and extract clean text
+**Deliverable**: `python backend/main.py --crawl-extract` works end-to-end
 
-**Acceptance Criteria**:
-- [ ] `backend/main.py` has `ingest_pipeline()` function that:
-  - Calls `crawl_and_extract()`, `chunk_and_embed()`, `QdrantStore.upsert()`
-  - Orchestrates full pipeline sequentially
-  - Validates prerequisites (config, API keys, connectivity)
-  - Handles errors at each stage, logs comprehensive summary
-- [ ] Summary stats reported: pages crawled, chunks created, embeddings generated, documents stored, failures
-- [ ] Can be run via `python main.py --ingest` with all required env vars set
-- [ ] Full pipeline completes without unhandled exceptions (or logs and exits gracefully)
-- [ ] Integration test passes: full pipeline on sample docs
-
-**Files to Modify/Create**:
-- `backend/main.py` — Add ingest_pipeline(), update arg parsing
-- `backend/tests/integration/test_full_pipeline.py` — Full end-to-end test
-
-**Dependencies**:
-- Task 4.1 (storage implemented)
-- Task 3.3 (chunking/embedding working)
-
-**Test Strategy**:
-- Integration: Full pipeline with sample docs; verify all data reaches Qdrant
-
-**Estimated Effort**: 45 minutes
+### Incremental Delivery
+1. **Increment 1 (MVP)**: US1 complete (T001–T023)
+2. **Increment 2**: US2 added (T024–T036), enables embedding generation
+3. **Increment 3**: US3 added (T037–T045), full pipeline to vector storage
+4. **Increment 4**: US4 added (T046–T054), end-to-end validation and test queries
 
 ---
 
-## Phase 5: Validation & Retrieval Testing
+## Task Execution Quick Reference
 
-### Task 5.1: Implement Pipeline Orchestration & Validation
+### By Phase
 
-**Objective**: Add startup validation, error handling, and comprehensive reporting to main().
+| Phase | Tasks | Duration | Blocking |
+|-------|-------|----------|----------|
+| Phase 1: Setup | T001–T004 | 30 min | Yes (blocks all) |
+| Phase 2: Foundation | T005–T011 | 45 min | Yes (blocks US) |
+| Phase 3: US1 | T012–T023 | 1.5 hrs | MVP |
+| Phase 4: US2 | T024–T036 | 1.5 hrs | None (after Ph2) |
+| Phase 5: US3 | T037–T045 | 1.5 hrs | None (after Ph2) |
+| Phase 6: US4 | T046–T054 | 1.5 hrs | All prior |
 
-**Acceptance Criteria**:
-- [ ] `backend/main.py` `main()` function:
-  - Loads and validates config (all required env vars present and valid)
-  - Tests Cohere API connectivity (quick embed request)
-  - Tests Qdrant connectivity (collection query)
-  - Calls `ingest_pipeline()` if all prerequisites pass
-  - Wraps in top-level exception handler with full context logging
-  - Prints final summary: pages, chunks, embeddings, failures, total time
-- [ ] Can be invoked via `python main.py` with proper CLI argument parsing
-- [ ] Exit codes: 0 on success, non-zero on failure
-- [ ] Unit tests pass: test config validation, error cases
-- [ ] Integration test passes: full pipeline with real endpoints
+### By User Story
 
-**Files to Modify/Create**:
-- `backend/main.py` — Finalize main() and arg parsing
-- `backend/tests/unit/test_main_validation.py` — Unit tests for validation
-
-**Dependencies**:
-- Task 4.2 (full pipeline integrated)
-- All prior tasks (config, logging, errors)
-
-**Test Strategy**:
-- Unit: Test validation logic, error handling
-- Integration: Run full main() with real Qdrant
-
-**Estimated Effort**: 45 minutes
+| User Story | Tasks | Count | Duration |
+|------------|-------|-------|----------|
+| US1: Crawl | T012–T023 | 12 | 1.5 hrs |
+| US2: Chunk | T024–T036 | 13 | 1.5 hrs |
+| US3: Store | T037–T045 | 9 | 1.5 hrs |
+| US4: Validate | T046–T054 | 9 | 1.5 hrs |
 
 ---
 
-### Task 5.2: Add Test Queries & Validation
+## File Structure After All Tasks
 
-**Objective**: Implement test queries to validate that stored embeddings are retrievable and relevant.
-
-**Acceptance Criteria**:
-- [ ] `backend/main.py` has `--test-queries` mode that:
-  - Loads pre-defined test queries (e.g., "How to install?", "Configuration options")
-  - Generates embeddings for each query using Cohere
-  - Searches Qdrant for top-3 most similar chunks
-  - Prints results with scores and chunk text
-  - Logs whether results are relevant (manual assessment or heuristic)
-- [ ] Retrieves and displays results with scores, chunk text, source URLs
-- [ ] Integration test passes: test queries on stored embeddings return relevant results
-- [ ] >80% of test queries return at least one directly relevant result in top-5
-
-**Files to Modify/Create**:
-- `backend/main.py` — Add test_queries() function and mode
-- `backend/tests/integration/test_queries.py` — Query test suite
-
-**Dependencies**:
-- Task 5.1 (full pipeline working)
-
-**Test Strategy**:
-- Manual testing: Run test queries, review results for relevance
-- Integration test: Automated test queries with basic relevance checks
-
-**Estimated Effort**: 1 hour
+```
+backend/
+├── pyproject.toml
+├── .env.example
+├── .gitignore
+├── README.md
+├── main.py
+│
+├── ingestion/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── crawlers/
+│   │   ├── __init__.py
+│   │   └── docusaurus_crawler.py
+│   ├── processors/
+│   │   ├── __init__.py
+│   │   └── text_cleaner.py
+│   ├── chunking/
+│   │   ├── __init__.py
+│   │   └── text_chunker.py
+│   ├── embeddings/
+│   │   ├── __init__.py
+│   │   └── cohere_embedder.py
+│   └── storage/
+│       ├── __init__.py
+│       └── qdrant_store.py
+│
+├── utils/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── logging.py
+│   └── errors.py
+│
+└── tests/
+    ├── conftest.py
+    ├── unit/
+    │   ├── test_config.py
+    │   ├── test_errors.py
+    │   ├── test_docusaurus_crawler.py
+    │   ├── test_text_cleaner.py
+    │   ├── test_text_chunker.py
+    │   ├── test_cohere_embedder.py
+    │   └── test_qdrant_store.py
+    └── integration/
+        ├── test_crawl_to_extract.py
+        ├── test_chunk_embed_integration.py
+        ├── test_qdrant_integration.py
+        ├── test_full_pipeline.py
+        └── test_queries.py
+```
 
 ---
 
-## Summary
+## Definition of Done (Per Task)
 
-**Total Tasks**: 12
-**Total Estimated Effort**: 9–10 hours of implementation and testing
-**Critical Path**: Task 1.1 → 1.2 → 2.1 → 2.2 → 2.3 → 3.1 → 3.2 → 3.3 → 4.1 → 4.2 → 5.1 → 5.2
+A task is complete when:
+1. All acceptance criteria are marked complete
+2. Unit tests pass (if applicable): `pytest`
+3. Code is committed to feature branch
+4. PHR recorded (for major tasks, typically Phase boundaries)
+5. No unhandled exceptions or warnings
 
-**Definition of Done (per task)**:
-1. All acceptance criteria marked complete
-2. Unit tests pass (if applicable)
-3. Integration tests pass (if applicable)
-4. Code is committed to feature branch
-5. PHR recorded for traceability
+---
 
-**Blockers & Constraints**:
-- Cohere API key and quota required (free tier available)
-- Qdrant Cloud account required (free tier available)
-- Target Docusaurus site must be publicly accessible
-- Network connectivity required for external APIs
+## Notes
+
+- **Configuration**: All tasks use environment variables from `.env`; see Phase 1 (T002) for template
+- **Testing Strategy**: Unit tests use mocks; integration tests use real (or Docker) Qdrant instance
+- **Error Handling**: Each module catches and logs errors gracefully; pipeline continues unless critical prerequisite fails
+- **Logging**: Structured JSON logging (see Phase 2, T006) for production debugging
+- **Python Version**: 3.11+ (specified in pyproject.toml)
+- **Dev Loop**: After Phase 2, can test individual modules with `pytest backend/tests/unit/` before integration
