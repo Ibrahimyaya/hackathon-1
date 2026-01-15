@@ -36,3 +36,5 @@ build/
 devel/
 install/
 log/
+
+.vercel

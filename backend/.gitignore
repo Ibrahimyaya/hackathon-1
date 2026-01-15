@@ -1,0 +1,93 @@
+# Python-specific patterns
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+.env
+.env.local
+.env.*.local
+
+# IDE and editor patterns
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# Test and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+*.cover
+
+# Logs
+*.log
+logs/
+
+# Package management
+.uv-cache/
+uv.lock
+
+# OS-specific patterns
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+*.swp
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+.db
+
+# Secrets (should not be committed)
+.env
+.env.local
+secrets.json
+credentials.json
+
+# Development artifacts
+.mypy_cache/
+.dmypy.json
+dmypy.json

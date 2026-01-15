@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rag-docs-ingest"
+version = "0.1.0"
+description = "RAG documentation ingestion pipeline: crawl, chunk, embed, and store documentation in Qdrant"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "RAG Ingest Team", email = "team@example.com"}
+]
+
+dependencies = [
+    "requests>=2.31.0",              # HTTP client for crawling
+    "beautifulsoup4>=4.12.0",        # HTML parsing
+    "pydantic>=2.4.0",               # Configuration validation
+    "pydantic-settings>=2.0.0",      # Environment variable settings
+    "cohere>=5.0.0",                 # Cohere SDK for embeddings
+    "qdrant-client>=2.6.0",          # Qdrant Python client
+    "tiktoken>=0.5.0",               # Token counting for embeddings
+    "python-dotenv>=1.0.0",          # .env file loading
+    "structlog>=24.0.0",             # Structured logging
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",                 # Testing framework
+    "pytest-cov>=4.1.0",             # Coverage reporting
+    "pytest-asyncio>=0.21.0",        # Async test support
+    "mock>=5.1.0",                   # Mocking for unit tests
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["ingestion", "utils"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[[tool.mypy.overrides]]
+module = "cohere.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "qdrant_client.*"
+ignore_missing_imports = true
