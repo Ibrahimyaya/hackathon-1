@@ -1,128 +1,98 @@
 # RAG Documentation Ingestion Pipeline
 
-A Python-based pipeline for ingesting documentation from Docusaurus sites, chunking content, generating embeddings using Cohere, and storing them in Qdrant Cloud for vector similarity search.
-
-## Overview
-
-This system enables developers to:
-1. **Crawl** Docusaurus documentation sites and extract clean text
-2. **Chunk** text into semantically meaningful segments
-3. **Embed** chunks using Cohere's embedding models
-4. **Store** embeddings in Qdrant for efficient similarity search
+A Python-based pipeline for extracting documentation from Docusaurus sites, chunking content, generating embeddings via Cohere, and storing them in Qdrant for vector similarity search.
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.11+
-- `uv` package manager (https://astral.sh/uv)
-- Cohere API key (free tier available at https://cohere.com/)
-- Qdrant Cloud account (free tier available at https://qdrant.io/)
+- **Python 3.11+**
+- **uv** (Python package manager) or pip
+- **Cohere API Key**: Get free tier at https://cohere.com/
+- **Qdrant Cloud Account**: Get free tier at https://qdrant.io/
 
-### Installation
+### Setup
 
-1. **Clone and navigate to backend directory**:
-   ```bash
-   cd backend
-   ```
-
-2. **Create environment file**:
+1. **Configure Environment**
    ```bash
    cp .env.example .env
+   # Edit .env with your Cohere API key, Qdrant credentials, and docs URL
    ```
 
-3. **Fill in required credentials** in `.env`:
+2. **Install Dependencies**
    ```bash
-   COHERE_API_KEY=your_key_here
-   QDRANT_API_KEY=your_key_here
-   QDRANT_URL=https://your-cluster.qdrant.io:6333
-   DOCS_URL=https://docs.your-site.com
-   ```
-
-4. **Install dependencies**:
-   ```bash
+   # Using uv:
    uv sync
+   
+   # Or using pip:
+   pip install -e ".[dev]"
    ```
 
-   Or install with dev dependencies for testing:
+3. **Validate Configuration**
    ```bash
-   uv sync --all-extras
+   python main.py --validate
    ```
 
-### Running the Pipeline
+### Usage
 
-#### Full End-to-End Pipeline
-
+#### Full Pipeline (Crawl → Chunk → Embed → Store)
 ```bash
 python main.py --full-pipeline
 ```
 
-This runs all stages: crawl → extract → chunk → embed → store
-
 #### Individual Stages
-
 ```bash
 # Crawl and extract documentation
 python main.py --crawl-extract
 
-# Chunk and generate embeddings (requires extracted text)
+# Chunk and generate embeddings
 python main.py --chunk-embed
 
-# Ingest into vector database (requires embeddings)
+# Ingest into Qdrant
 python main.py --ingest
 
-# Test query execution (requires stored embeddings)
+# Run test queries
 python main.py --test-queries
-```
-
-#### Command-Line Help
-
-```bash
-python main.py --help
 ```
 
 ## Project Structure
 
 ```
 backend/
-├── pyproject.toml              # Project config and dependencies
+├── pyproject.toml              # Python project configuration
 ├── .env.example                # Configuration template
 ├── .gitignore                  # Git ignore patterns
 ├── README.md                   # This file
-├── main.py                     # CLI entry point and pipeline orchestration
+├── main.py                     # Entry point and orchestration
 │
-├── ingestion/                  # Core ingestion package
+├── ingestion/                  # Core ingestion pipeline
 │   ├── __init__.py
-│   ├── models.py               # DocumentChunk, Embedding dataclasses
+│   ├── models.py               # Data classes (DocumentChunk, Embedding)
 │   ├── crawlers/
 │   │   ├── __init__.py
-│   │   └── docusaurus_crawler.py    # Docusaurus site crawler
-│   │
+│   │   └── docusaurus_crawler.py   # Docusaurus site crawler
 │   ├── processors/
 │   │   ├── __init__.py
-│   │   └── text_cleaner.py          # HTML to text extraction
-│   │
+│   │   └── text_cleaner.py         # HTML to text extraction
 │   ├── chunking/
 │   │   ├── __init__.py
-│   │   └── text_chunker.py          # Semantic text chunking
-│   │
+│   │   └── text_chunker.py         # Semantic text chunking
 │   ├── embeddings/
 │   │   ├── __init__.py
-│   │   └── cohere_embedder.py       # Cohere API client
-│   │
+│   │   └── cohere_embedder.py      # Cohere embeddings client
 │   └── storage/
 │       ├── __init__.py
-│       └── qdrant_store.py          # Qdrant indexing & search
+│       └── qdrant_store.py         # Qdrant vector storage
 │
 ├── utils/
 │   ├── __init__.py
-│   ├── config.py               # Configuration loading
-│   ├── logging.py              # Structured logging
-│   └── errors.py               # Exception hierarchy
+│   ├── config.py                   # Configuration loading and validation
+│   ├── logging.py                  # Structured JSON logging
+│   └── errors.py                   # Custom exception hierarchy
 │
 └── tests/
-    ├── conftest.py             # pytest fixtures
-    ├── unit/                   # Unit tests
+    ├── conftest.py                 # pytest fixtures
+    ├── unit/
     │   ├── test_config.py
     │   ├── test_errors.py
     │   ├── test_docusaurus_crawler.py
@@ -130,8 +100,7 @@ backend/
     │   ├── test_text_chunker.py
     │   ├── test_cohere_embedder.py
     │   └── test_qdrant_store.py
-    │
-    └── integration/            # Integration tests
+    └── integration/
         ├── test_crawl_to_extract.py
         ├── test_chunk_embed_integration.py
         ├── test_qdrant_integration.py
@@ -141,158 +110,136 @@ backend/
 
 ## Configuration
 
-All configuration is managed via environment variables in `.env`. See `.env.example` for a complete list of variables with descriptions.
+All configuration is managed via environment variables in `.env`. Key settings:
 
-**Key Configuration Variables:**
+### Crawling
+- `DOCS_URL`: Target Docusaurus site (required)
+- `CRAWL_MAX_PAGES`: Maximum pages to crawl (default: 1000)
+- `CRAWL_TIMEOUT_SECONDS`: Per-page timeout (default: 10)
 
-| Variable | Purpose | Default | Required |
-|----------|---------|---------|----------|
-| `DOCS_URL` | Target Docusaurus site | - | ✅ Yes |
-| `COHERE_API_KEY` | Cohere API authentication | - | ✅ Yes |
-| `QDRANT_API_KEY` | Qdrant authentication | - | ✅ Yes |
-| `QDRANT_URL` | Qdrant Cloud endpoint | - | ✅ Yes |
-| `CRAWL_MAX_PAGES` | Max pages to crawl | 1000 | No |
-| `CHUNK_MAX_TOKENS` | Max tokens per chunk | 512 | No |
-| `LOG_LEVEL` | Logging verbosity | INFO | No |
+### Chunking
+- `CHUNK_MIN_TOKENS`: Minimum chunk size (default: 256)
+- `CHUNK_MAX_TOKENS`: Maximum chunk size (default: 512)
+- `CHUNK_OVERLAP_TOKENS`: Context overlap (default: 50)
 
-## Error Handling
+### Embeddings (Cohere)
+- `COHERE_API_KEY`: Your Cohere API key (required)
+- `COHERE_MODEL`: Model identifier (default: embed-english-v3.0)
+- `COHERE_BATCH_SIZE`: Batch size (default: 100)
 
-The pipeline handles errors gracefully:
+### Storage (Qdrant)
+- `QDRANT_API_KEY`: Your Qdrant API key (required)
+- `QDRANT_URL`: Qdrant endpoint (required)
+- `QDRANT_COLLECTION_NAME`: Collection name (default: docs_chunks)
+- `QDRANT_VECTOR_SIZE`: Vector dimension (default: 1024)
 
-- **Crawl errors**: Retries transient errors (3x with backoff); skips permanent failures
-- **Processing errors**: Logs and skips unparseable content
-- **Embedding errors**: Handles rate limits and quota exceeded with clear messaging
-- **Storage errors**: Validates Qdrant connectivity; creates collection if needed
+### Logging
+- `LOG_LEVEL`: DEBUG, INFO, WARNING, ERROR, CRITICAL (default: INFO)
+- `LOG_FORMAT`: json or human (default: json)
 
-All errors are logged with full context (URL, chunk ID, stage) for debugging.
-
-## Testing
-
-### Run All Tests
+## Running Tests
 
 ```bash
+# All tests
 pytest
-```
 
-### Run Specific Test Category
-
-```bash
 # Unit tests only
 pytest tests/unit/
 
 # Integration tests only
 pytest tests/integration/
 
-# Specific test file
-pytest tests/unit/test_config.py
-
 # With coverage
-pytest --cov=ingestion --cov=utils
+pytest --cov=. --cov-report=html
 ```
 
-### Test Requirements
+## Pipeline Stages
 
-- Unit tests use mocked APIs (no real credentials needed)
-- Integration tests require valid Cohere API key and Qdrant Cloud access
-- Test fixtures are defined in `tests/conftest.py`
+### 1. Crawl & Extract
+- Discovers all public pages from target Docusaurus site
+- Fetches HTML content with retry logic
+- Extracts clean text while preserving structure
+- Outputs: List of DocumentChunk objects with URLs and text
 
-## Logging
+### 2. Chunk & Embed
+- Splits extracted text at logical boundaries (sections, paragraphs)
+- Counts tokens and ensures chunks respect size limits
+- Generates embeddings via Cohere API
+- Handles rate limiting and quota errors gracefully
+- Outputs: DocumentChunk objects with vector embeddings
 
-The pipeline uses structured JSON logging for production and human-readable logging for development.
+### 3. Store & Index
+- Connects to Qdrant and validates/creates collection
+- Batch upserts embeddings with metadata
+- Implements similarity search for retrieval
+- Outputs: Stored vectors indexed in Qdrant
 
-**Toggle logging format via environment variable:**
+### 4. Validate & Query
+- Validates full pipeline end-to-end
+- Executes test queries for relevance verification
+- Generates summary statistics and reports
 
+## Error Handling
+
+The pipeline is designed to be resilient:
+
+- **Crawling**: Retries transient errors (3x with exponential backoff), skips permanent failures
+- **Chunking**: Validates token counts, skips malformed chunks with logging
+- **Embedding**: Handles rate limits and quota errors, batches requests for efficiency
+- **Storage**: Validates Qdrant connection on startup, creates collection if missing
+- **Pipeline**: Top-level exception handler logs context and provides summary stats
+
+All errors are logged with full context for debugging.
+
+## Development
+
+### Local Qdrant Setup
+For development without Qdrant Cloud:
 ```bash
-LOG_FORMAT=json    # Structured JSON (production)
-LOG_FORMAT=human   # Human-readable (development)
+docker run -p 6333:6333 qdrant/qdrant
 ```
+Then set `QDRANT_URL=http://localhost:6333` in `.env`.
 
-**Set logging level:**
-
+### Code Quality
 ```bash
-LOG_LEVEL=DEBUG    # Verbose debug output
-LOG_LEVEL=INFO     # Standard info (default)
-LOG_LEVEL=WARNING  # Warnings and errors only
+# Format code
+black backend/
+
+# Lint
+ruff check backend/
+
+# Type check
+mypy backend/
 ```
-
-## Supported Documentation Sites
-
-The crawler is designed for Docusaurus documentation sites. It:
-
-- Discovers pages via `sitemap.xml` (if available) or breadth-first crawl
-- Extracts content from standard Docusaurus HTML structure
-- Preserves semantic structure (headings, code blocks, lists)
-- Handles nested sections and deeply linked pages
-
-**Tested with:**
-- Docusaurus v2 and v3
-- Standard HTML documentation sites
-
-## API Limits
-
-**Cohere Free Tier:**
-- 100 API calls/minute
-- 10,000 embeddings/month
-- Embedding model: `embed-english-v3.0` (1024-dimensional vectors)
-
-**Qdrant Cloud Free Tier:**
-- Up to 100k points per collection
-- 1 collection
-- Full API access
 
 ## Troubleshooting
 
-### "API key invalid" Error
+### "Connection refused" for Qdrant
+- Verify `QDRANT_URL` is correct and Qdrant is running
+- Check API key is valid
+- For Docker: ensure container is running (`docker ps`)
 
-```
-ERROR: Cohere API key validation failed
-→ Check COHERE_API_KEY in .env
-→ Verify key is copied correctly from https://cohere.com/
-```
+### "API Key invalid" for Cohere
+- Verify `COHERE_API_KEY` is set correctly in `.env`
+- Check key is valid at https://cohere.com/
 
-### "Qdrant connection failed"
+### "No pages crawled"
+- Verify `DOCS_URL` is correct and publicly accessible
+- Check network connectivity and firewall rules
+- Verify the site is a Docusaurus site (has sitemap.xml or compatible structure)
 
-```
-ERROR: Cannot connect to Qdrant at {QDRANT_URL}
-→ Verify QDRANT_URL format: https://<cluster>.qdrant.io:6333
-→ Check QDRANT_API_KEY is correct
-→ Verify internet connectivity
-```
+## Success Criteria
 
-### "No pages discovered"
+- ✅ >95% of public pages discovered
+- ✅ >90% of original content preserved in text extraction
+- ✅ >95% of chunks within configured token limits
+- ✅ All embeddings successfully stored in Qdrant
+- ✅ Similarity search returns relevant results within 100ms
+- ✅ All tests pass
 
-```
-ERROR: Crawler found 0 pages at {DOCS_URL}
-→ Verify DOCS_URL points to a valid Docusaurus site
-→ Check site is publicly accessible
-→ Try crawling manually in browser
-```
+## References
 
-### Rate Limiting
-
-```
-WARNING: Cohere API rate limit exceeded
-→ Pipeline pauses and waits
-→ Check Cohere dashboard for quota usage
-→ Reduce COHERE_BATCH_SIZE if needed
-```
-
-## Contributing
-
-To extend the pipeline:
-
-1. **Add new embeddings model**: Extend `ingestion/embeddings/`
-2. **Support new documentation format**: Create new crawler in `ingestion/crawlers/`
-3. **Implement custom chunking strategy**: Extend `ingestion/chunking/text_chunker.py`
-4. **Add new vector database**: Create new storage adapter in `ingestion/storage/`
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Support
-
-For issues, questions, or contributions:
-- Check existing tests in `tests/` for usage examples
-- Review `spec.md` in the parent directory for feature requirements
-- Refer to `plan.md` for architecture and design decisions
+- [Docusaurus Documentation](https://docusaurus.io/)
+- [Cohere API Reference](https://docs.cohere.com/)
+- [Qdrant Documentation](https://qdrant.tech/documentation/)
+- [Semantic Chunking Guide](https://docs.anthropic.com/)

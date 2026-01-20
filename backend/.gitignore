@@ -1,9 +1,12 @@
-# Python-specific patterns
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -16,23 +19,17 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual environments
-venv/
-ENV/
-env/
 .venv
 .env
 .env.local
 .env.*.local
 
-# IDE and editor patterns
+# IDE
 .vscode/
 .idea/
 *.swp
@@ -40,54 +37,24 @@ env/
 *~
 .DS_Store
 Thumbs.db
-*.sublime-project
-*.sublime-workspace
-.project
-.pydevproject
-.settings/
 
-# Test and coverage
+# Testing
 .pytest_cache/
 .coverage
-.coverage.*
 htmlcov/
 .tox/
 .hypothesis/
-*.cover
 
-# Logs
+# Logging
 *.log
 logs/
 
-# Package management
-.uv-cache/
-uv.lock
-
-# OS-specific patterns
-.DS_Store
-Thumbs.db
+# Temporary files
 *.tmp
 *.bak
-*.swp
+.cache/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-.db
-
-# Secrets (should not be committed)
-.env
+# OS
+.DS_Store
 .env.local
-secrets.json
-credentials.json
-
-# Development artifacts
-.mypy_cache/
-.dmypy.json
-dmypy.json
+.env.*.local

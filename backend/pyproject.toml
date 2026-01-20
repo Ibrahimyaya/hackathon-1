@@ -1,69 +1,59 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
-name = "rag-docs-ingest"
+name = "docs-rag-ingest"
 version = "0.1.0"
-description = "RAG documentation ingestion pipeline: crawl, chunk, embed, and store documentation in Qdrant"
-readme = "README.md"
+description = "RAG documentation ingestion pipeline: crawl Docusaurus sites, chunk content, generate embeddings, store in Qdrant"
 requires-python = ">=3.11"
-license = {text = "MIT"}
 authors = [
-    {name = "RAG Ingest Team", email = "team@example.com"}
+    { name = "Anthropic", email = "support@anthropic.com" }
 ]
+license = { text = "MIT" }
 
 dependencies = [
-    "requests>=2.31.0",              # HTTP client for crawling
-    "beautifulsoup4>=4.12.0",        # HTML parsing
-    "pydantic>=2.4.0",               # Configuration validation
-    "pydantic-settings>=2.0.0",      # Environment variable settings
-    "cohere>=5.0.0",                 # Cohere SDK for embeddings
-    "qdrant-client>=2.6.0",          # Qdrant Python client
-    "tiktoken>=0.5.0",               # Token counting for embeddings
-    "python-dotenv>=1.0.0",          # .env file loading
-    "structlog>=24.0.0",             # Structured logging
+    "requests>=2.31.0",           # HTTP client for crawling
+    "beautifulsoup4>=4.12.0",     # HTML parsing
+    "pydantic>=2.4.0",            # Configuration validation
+    "pydantic-settings>=2.0.0",   # Environment variable support for pydantic v2
+    "cohere>=5.0.0",              # Cohere SDK for embeddings
+    "qdrant-client>=1.16.0,<2.0",       # Qdrant Python client (Python 3.14 compatible)
+    "tiktoken>=0.5.0",            # Token counting
+    "python-dotenv>=1.0.0",       # .env file loading
+    "structlog>=24.0.0",          # Structured logging
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",                 # Testing framework
-    "pytest-cov>=4.1.0",             # Coverage reporting
-    "pytest-asyncio>=0.21.0",        # Async test support
-    "mock>=5.1.0",                   # Mocking for unit tests
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.12.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
 ]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ingestion", "utils", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-addopts = "-v --tb=short"
+python_files = "test_*.py"
+addopts = "-v --tb=short --cov=. --cov-report=term-missing"
 
-[tool.coverage.run]
-source = ["ingestion", "utils"]
-omit = ["tests/*"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]
+[tool.black]
+line-length = 100
+target-version = ["py311"]
 
 [tool.ruff]
-line-length = 100
 target-version = "py311"
+line-length = 100
+select = ["E", "F", "W"]
 
-[tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]
-
-[[tool.mypy.overrides]]
-module = "cohere.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "qdrant_client.*"
-ignore_missing_imports = true
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
