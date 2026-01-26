@@ -36,18 +36,25 @@ const ChatWidget: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatApiUrl = process.env.REACT_APP_CHAT_API_URL || 'http://localhost:8000';
 
   // Initialize session ID on mount
   useEffect(() => {
-    const storedSessionId = localStorage.getItem('chat-widget-session-id');
-    if (storedSessionId) {
-      setSessionId(storedSessionId);
-    } else {
-      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('chat-widget-session-id', newSessionId);
-      setSessionId(newSessionId);
+    try {
+      const storedSessionId = localStorage.getItem('chat-widget-session-id');
+      if (storedSessionId) {
+        setSessionId(storedSessionId);
+      } else {
+        const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('chat-widget-session-id', newSessionId);
+        setSessionId(newSessionId);
+      }
+      console.log('[ChatWidget] Initialized successfully', { chatApiUrl });
+    } catch (err) {
+      console.error('[ChatWidget] Initialization error:', err);
+      setHasError(true);
     }
   }, []);
 
@@ -136,6 +143,44 @@ const ChatWidget: React.FC = () => {
     setMessages([]);
     setError(null);
   };
+
+  // If component failed to initialize, show minimal chat bubble
+  if (hasError) {
+    return (
+      <div className="chat-widget">
+        <button
+          className="chat-bubble"
+          onClick={() => setIsExpanded(!isExpanded)}
+          title="Chat widget (error mode)"
+          style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999 }}
+        >
+          💬
+        </button>
+        {isExpanded && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '80px',
+              right: '0',
+              width: '350px',
+              height: '500px',
+              background: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
+              padding: '16px',
+              zIndex: 9999,
+              color: 'red',
+              fontSize: '12px',
+              overflow: 'auto',
+            }}
+          >
+            <p>Chat widget error. Check console for details.</p>
+            <p>{error}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="chat-widget">
