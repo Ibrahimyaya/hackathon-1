@@ -21,6 +21,10 @@ const config = {
     locales: ['en'],
   },
 
+  customFields: {
+    chatApiUrl: process.env.REACT_APP_CHAT_API_URL || 'http://localhost:8000',
+  },
+
   presets: [
     [
       'classic',

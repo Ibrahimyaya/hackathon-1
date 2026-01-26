@@ -1,0 +1,26 @@
+# Railway deployment configuration for RAG Chat API
+
+[build]
+builder = "dockerfile"
+dockerfile = "Dockerfile"
+
+[deploy]
+startCommand = "bash start.sh"
+healthcheckPath = "/health"
+healthcheckInterval = 10
+replicas = 1
+restartPolicyMaxRetries = 3
+
+[env]
+API_HOST = "0.0.0.0"
+API_PORT = "8000"
+LOG_LEVEL = "INFO"
+LOG_FORMAT = "json"
+
+# Required environment variables (set in Railway dashboard):
+# - CORS_ORIGINS (e.g., https://final-sandy-psi.vercel.app)
+# - COHERE_API_KEY
+# - QDRANT_API_KEY
+# - QDRANT_URL
+# - CLAUDE_API_KEY
+# - DOCS_URL

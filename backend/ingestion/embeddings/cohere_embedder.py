@@ -95,6 +95,43 @@ class CohereEmbedder:
 
         return embeddings
 
+    def embed_query(self, query: str) -> List[float]:
+        """Generate embedding for a search query.
+
+        Uses search_query input type (different from search_document for documents).
+
+        Args:
+            query: Query string to embed
+
+        Returns:
+            Embedding vector as a list of floats
+
+        Raises:
+            CohereAPIError: If embedding fails
+            CohereQuotaError: If quota is exceeded
+        """
+        logger.debug(f"Embedding query: {query[:50]}...")
+
+        try:
+            response = self.client.embed(
+                model=self.model,
+                texts=[query],
+                input_type="search_query",
+            )
+            # Cohere v2 API returns EmbedByTypeResponseEmbeddings with float_ attribute
+            if hasattr(response.embeddings, 'float_') and response.embeddings.float_:
+                return response.embeddings.float_[0]
+            else:
+                raise CohereAPIError("No float embeddings in response")
+        except Exception as e:
+            error_str = str(e).lower()
+
+            if "quota" in error_str or "rate limit" in error_str:
+                raise CohereQuotaError(f"Cohere quota exceeded: {str(e)}") from e
+
+            logger.error(f"Cohere API error while embedding query: {str(e)}")
+            raise CohereAPIError(f"Failed to embed query: {str(e)}") from e
+
     def _embed_batch(self, texts: List[str]) -> List[List[float]]:
         """Embed a batch of texts.
 
@@ -116,7 +153,12 @@ class CohereEmbedder:
                     input_type="search_document",
                 )
 
-                return response.embeddings
+                # Extract vectors from response
+                # Cohere v2 API returns EmbedByTypeResponseEmbeddings with float_ attribute
+                if hasattr(response.embeddings, 'float_') and response.embeddings.float_:
+                    return response.embeddings.float_
+                else:
+                    raise CohereAPIError("No float embeddings in response")
 
             except Exception as e:
                 error_str = str(e).lower()

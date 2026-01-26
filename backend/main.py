@@ -352,7 +352,7 @@ def main():
         return 1
 
     # Setup logging
-    setup_logging(config.log_level, config.log_format)
+    setup_logging(config)
 
     # Create pipeline
     pipeline = RAGPipeline(config)

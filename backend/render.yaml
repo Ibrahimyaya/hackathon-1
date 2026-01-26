@@ -1,0 +1,35 @@
+# Render deployment configuration for RAG Chat API
+# Deploy by pushing to main branch with render.yaml in root
+
+services:
+  - type: web
+    name: rag-chat-api
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    startCommand: bash backend/start.sh
+    healthCheckPath: /health
+    healthCheckInterval: 10
+    maxInstances: 1
+    minInstances: 1
+    plan: standard
+    autoDeploy: true
+
+    # Environment variables (set in Render dashboard)
+    # Required:
+    # - CORS_ORIGINS=https://final-sandy-psi.vercel.app
+    # - COHERE_API_KEY
+    # - QDRANT_API_KEY
+    # - QDRANT_URL
+    # - CLAUDE_API_KEY
+    # - DOCS_URL
+
+    # Optional with defaults:
+    envVars:
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: 8000
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FORMAT
+        value: json
