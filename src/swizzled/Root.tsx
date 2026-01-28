@@ -8,13 +8,19 @@
 
 import React from 'react';
 import Layout from './Layout';
+import ChatWidget from '../components/ChatWidget';
 
 interface RootProps {
   children: React.ReactNode;
 }
 
 const Root: React.FC<RootProps> = ({ children }) => {
-  return <Layout>{children}</Layout>;
+  return (
+    <>
+      <Layout>{children}</Layout>
+      <ChatWidget />
+    </>
+  );
 };
 
 export default Root;

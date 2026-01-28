@@ -13,7 +13,6 @@
 
 import React, { useState } from 'react';
 import Sidebar from '../Sidebar';
-import ChatWidget from '../../components/ChatWidget';
 import './layout.css';
 
 interface LayoutProps {
@@ -101,9 +100,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Optional Right Sidebar for TOC (Future) */}
         <aside className="layout-toc" role="complementary" aria-label="Table of contents" />
       </div>
-
-      {/* Chat Widget */}
-      <ChatWidget />
     </div>
   );
 };
